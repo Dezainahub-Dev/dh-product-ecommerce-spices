@@ -1,0 +1,43 @@
+<svg width="520" height="500" viewBox="0 0 520 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="520" height="500" rx="140" fill="url(#bg)" />
+  <circle cx="410" cy="100" r="36" fill="#6EAF3A" />
+  <circle cx="470" cy="130" r="24" fill="#FEBB2E" />
+  <g filter="url(#shadow1)">
+    <g transform="rotate(-8 180 140)">
+      <rect x="190" y="120" width="150" height="280" rx="60" fill="url(#bottle)" />
+      <rect x="190" y="120" width="150" height="180" rx="20" fill="url(#glass)" />
+      <rect x="230" y="100" width="70" height="60" rx="20" fill="#161616" />
+      <rect x="250" y="60" width="30" height="60" rx="15" fill="#D6DCE4" />
+      <rect x="220" y="210" width="90" height="120" rx="18" fill="white" />
+    </g>
+  </g>
+  <g filter="url(#shadow2)">
+    <g transform="rotate(12 340 200)">
+      <rect x="310" y="160" width="150" height="280" rx="60" fill="url(#bottle)" />
+      <rect x="310" y="160" width="150" height="180" rx="20" fill="url(#glass)" />
+      <rect x="350" y="140" width="70" height="60" rx="20" fill="#161616" />
+      <rect x="370" y="100" width="30" height="60" rx="15" fill="#D6DCE4" />
+      <rect x="340" y="250" width="90" height="120" rx="18" fill="white" />
+    </g>
+  </g>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="520" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="bottle" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#C8731F"/>
+      <stop offset="1" stop-color="#A24A00"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#FBF2E5" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#F6D4A7" stop-opacity="0.6"/>
+    </linearGradient>
+    <filter id="shadow1" x="100" y="20" width="240" height="420" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="25" stdDeviation="25" flood-opacity="0.25"/>
+    </filter>
+    <filter id="shadow2" x="240" y="60" width="240" height="420" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="25" stdDeviation="25" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+</svg>

@@ -137,7 +137,7 @@ export function ProfileAddressPage() {
     switch (activeTab) {
       case "profile":
         return (
-          <div className="space-y-5 text-sm text-[#355B20]">
+          <div className="space-y-5 text-sm text-primary-dark">
             <form
               onSubmit={handleProfileSubmit}
               className="space-y-5"
@@ -176,7 +176,7 @@ export function ProfileAddressPage() {
               />
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#A1B293]">
+                  <p className="text-xs uppercase tracking-[0.3em] text-primary-lighter">
                     Gender
                   </p>
                   <div className="mt-3 flex flex-wrap gap-3">
@@ -185,8 +185,8 @@ export function ProfileAddressPage() {
                         key={option}
                         className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold capitalize transition ${
                           profileDraft.gender === option
-                            ? "border-[#4D9C2C] text-[#355B20]"
-                            : "border-[#E6EEDF] text-zinc-500"
+                            ? "border-primary text-primary-dark"
+                            : "border-border-primary text-zinc-500"
                         } ${!isEditingProfile ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
                       >
                         <input
@@ -196,7 +196,7 @@ export function ProfileAddressPage() {
                           checked={profileDraft.gender === option}
                           onChange={handleProfileChange}
                           disabled={!isEditingProfile}
-                          className="text-[#4D9C2C]"
+                          className="text-primary"
                         />
                         {option}
                       </label>
@@ -218,7 +218,7 @@ export function ProfileAddressPage() {
                 <button
                   type="button"
                   onClick={cancelEditingProfile}
-                  className="rounded-full border border-[#D6E9C6] px-6 py-2 text-sm font-semibold text-[#355B20]"
+                  className="rounded-full border border-border-light px-6 py-2 text-sm font-semibold text-primary-dark"
                 >
                   Cancel
                 </button>
@@ -230,7 +230,7 @@ export function ProfileAddressPage() {
                     e.preventDefault();
                     handleProfileSubmit(e as any);
                   }}
-                  className="rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)]"
+                  className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)]"
                 >
                   Save Profile
                 </button>
@@ -238,7 +238,7 @@ export function ProfileAddressPage() {
                 <button
                   type="button"
                   onClick={startEditingProfile}
-                  className="rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)] cursor-pointer"
+                  className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)] cursor-pointer"
                 >
                   Edit Profile
                 </button>
@@ -252,20 +252,20 @@ export function ProfileAddressPage() {
             {orders.map((order) => (
               <article
                 key={order.id}
-                className="flex flex-col rounded-2xl border border-[#E6EEDF] bg-[#FDFEFE] p-4 text-sm text-[#355B20] md:flex-row md:items-center md:justify-between"
+                className="flex flex-col rounded-2xl border border-border-primary bg-bg-card p-4 text-sm text-primary-dark md:flex-row md:items-center md:justify-between"
               >
                 <div>
                   <p className="text-base font-semibold">{order.summary}</p>
                   <p className="mt-1 text-zinc-500">
                     {order.date} • Order {order.id}
                   </p>
-                  <p className="mt-2 font-semibold text-[#4D9C2C]">{order.total}</p>
+                  <p className="mt-2 font-semibold text-primary">{order.total}</p>
                 </div>
                 <div className="mt-4 flex items-center gap-3 md:mt-0">
-                  <span className="rounded-full bg-[#F6FCEA] px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#4D9C2C]">
+                  <span className="rounded-full bg-bg-secondary px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
                     {order.status}
                   </span>
-                  <button className="rounded-full border border-[#D6E9C6] px-5 py-2 text-sm font-semibold text-[#355B20]">
+                  <button className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary-dark">
                     View Details
                   </button>
                 </div>
@@ -276,9 +276,9 @@ export function ProfileAddressPage() {
       case "wishlist":
         if (wishlistProducts.length === 0) {
           return (
-            <div className="rounded-2xl border border-[#E6EEDF] bg-[#FDFEFE] p-6 text-center text-sm text-zinc-500">
+            <div className="rounded-2xl border border-border-primary bg-bg-card p-6 text-center text-sm text-zinc-500">
               No wishlist items yet.{" "}
-              <Link href="/shop-now" className="text-[#4D9C2C] underline">
+              <Link href="/shop-now" className="text-primary underline">
                 Browse products
               </Link>
               .
@@ -290,14 +290,14 @@ export function ProfileAddressPage() {
             {wishlistProducts.map((product) => (
               <article
                 key={product.slug}
-                className="rounded-2xl border border-[#E6EEDF] bg-[#FDFEFE] p-4 text-sm text-[#355B20]"
+                className="rounded-2xl border border-border-primary bg-bg-card p-4 text-sm text-primary-dark"
               >
-                <p className="text-xs uppercase tracking-[0.3em] text-[#4D9C2C]/70">
+                <p className="text-xs uppercase tracking-[0.3em] text-primary/70">
                   {product.category}
                 </p>
                 <p className="mt-1 text-lg font-semibold">{product.name}</p>
-                <p className="mt-2 text-[#4D9C2C]">₹{product.price}</p>
-                <button className="mt-4 w-full rounded-full border border-[#4D9C2C] px-4 py-2 text-sm font-semibold text-[#4D9C2C] hover:bg-[#4D9C2C] hover:text-white">
+                <p className="mt-2 text-primary">₹{product.price}</p>
+                <button className="mt-4 w-full rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white">
                   Add to Cart
                 </button>
               </article>
@@ -311,14 +311,14 @@ export function ProfileAddressPage() {
             {addresses.map((entry) => (
               <article
                 key={entry.id}
-                className="flex flex-col gap-4 rounded-2xl border border-[#E6EEDF] bg-[#FDFEFE] p-4 sm:flex-row sm:items-start sm:justify-between"
+                className="flex flex-col gap-4 rounded-2xl border border-border-primary bg-bg-card p-4 sm:flex-row sm:items-start sm:justify-between"
               >
                 <div>
-                  <p className="text-base font-semibold text-[#355B20]">
+                  <p className="text-base font-semibold text-primary-dark">
                     {entry.name} <span className="text-zinc-400">|</span>{" "}
-                    <span className="text-[#355B20]">{entry.phone}</span>{" "}
+                    <span className="text-primary-dark">{entry.phone}</span>{" "}
                     <span className="text-zinc-400">|</span>{" "}
-                    <span className="font-normal text-[#4D9C2C]">{entry.label}</span>
+                    <span className="font-normal text-primary">{entry.label}</span>
                   </p>
                   <div className="mt-2 space-y-1 text-sm text-zinc-500">
                     {entry.lines.map((line, index) => (
@@ -326,7 +326,7 @@ export function ProfileAddressPage() {
                     ))}
                   </div>
                 </div>
-                <button className="h-10 rounded-full border border-[#D6E9C6] px-6 text-sm font-semibold text-[#355B20] transition hover:bg-[#F6FCEA]">
+                <button className="h-10 rounded-full border border-border-light px-6 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary">
                   Edit
                 </button>
               </article>
@@ -337,10 +337,10 @@ export function ProfileAddressPage() {
   };
 
   return (
-    <main className="bg-white text-[#355B20]">
+    <main className="bg-white text-primary-dark">
       <section className="mx-auto max-w-[1300px] px-6 py-10">
         <nav className="text-sm text-zinc-500">
-          <Link href="/" className="text-[#4D9C2C] hover:underline">
+          <Link href="/" className="text-primary hover:underline">
             Home
           </Link>{" "}
           <span className="mx-2 text-zinc-400">/</span>
@@ -348,12 +348,12 @@ export function ProfileAddressPage() {
         </nav>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
-          <aside className="rounded-3xl border border-[#E6EEDF] bg-white p-6 shadow-[0_6px_20px_rgba(77,156,44,0.06)]">
+          <aside className="rounded-3xl border border-border-primary bg-white p-6 shadow-[0_6px_20px_rgba(77,156,44,0.06)]">
             <div>
-              <p className="text-lg font-semibold text-[#355B20]">My Profile</p>
+              <p className="text-lg font-semibold text-primary-dark">My Profile</p>
               <p className="mt-1 text-sm text-zinc-500">Manage your account setting</p>
             </div>
-            <ul className="mt-6 space-y-3 text-sm font-semibold text-[#355B20]">
+            <ul className="mt-6 space-y-3 text-sm font-semibold text-primary-dark">
               {profileMenu.map((item) => (
                 <li key={item.label}>
                   <button
@@ -361,13 +361,13 @@ export function ProfileAddressPage() {
                     onClick={() => handleTabChange(item.value)}
                     className={`flex w-full items-center justify-between rounded-2xl border border-transparent px-4 py-3 text-left transition ${
                       activeTab === item.value
-                        ? "border-[#E4F5D7] bg-[#F6FCEA] text-[#3A5D22]"
-                        : "text-[#6C7D5A] hover:border-[#E4F5D7] hover:bg-[#FBFEF7]"
+                        ? "border-border-lightest bg-bg-secondary text-text-medium"
+                        : "text-text-muted hover:border-border-lightest hover:bg-bg-tertiary"
                     }`}
                   >
                     <span>{item.label}</span>
                     {activeTab === item.value && (
-                      <span className="text-xs font-bold text-[#A4C769]">●</span>
+                      <span className="text-xs font-bold text-primary-light">●</span>
                     )}
                   </button>
                 </li>
@@ -375,13 +375,13 @@ export function ProfileAddressPage() {
             </ul>
           </aside>
 
-          <div className="rounded-3xl border border-[#E6EEDF] bg-white p-6 shadow-[0_6px_20px_rgba(77,156,44,0.06)]">
+          <div className="rounded-3xl border border-border-primary bg-white p-6 shadow-[0_6px_20px_rgba(77,156,44,0.06)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.5em] text-[#A1B293]">
+                <p className="text-xs font-semibold uppercase tracking-[0.5em] text-primary-lighter">
                   {activeTab}
                 </p>
-                <h1 className="mt-2 text-2xl font-semibold text-[#355B20]">
+                <h1 className="mt-2 text-2xl font-semibold text-primary-dark">
                   {activeTab === "profile"
                     ? "Profile Details"
                     : activeTab === "orders"
@@ -392,7 +392,7 @@ export function ProfileAddressPage() {
                 </h1>
               </div>
               {activeTab === "address" && (
-                <button className="rounded-full border border-[#D6E9C6] px-5 py-2 text-sm font-semibold text-[#4D9C2C] transition hover:bg-[#F6FCEA]">
+                <button className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary transition hover:bg-bg-secondary">
                   + Add New
                 </button>
               )}
@@ -419,8 +419,8 @@ type ProfileInputProps = {
 const ProfileInput = forwardRef<HTMLInputElement, ProfileInputProps>(
   ({ label, name, value, onChange, disabled, type = "text" }, ref) => {
     return (
-      <label className="block rounded-2xl border border-[#E6EEDF] px-5 py-4">
-        <span className="text-xs uppercase tracking-[0.3em] text-[#A1B293]">{label}</span>
+      <label className="block rounded-2xl border border-border-primary px-5 py-4">
+        <span className="text-xs uppercase tracking-[0.3em] text-primary-lighter">{label}</span>
         <input
           ref={ref}
           type={type}
@@ -428,7 +428,7 @@ const ProfileInput = forwardRef<HTMLInputElement, ProfileInputProps>(
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="mt-2 w-full border-none bg-transparent text-base font-semibold text-[#355B20] outline-none disabled:text-zinc-500"
+          className="mt-2 w-full border-none bg-transparent text-base font-semibold text-primary-dark outline-none disabled:text-zinc-500"
         />
       </label>
     );

@@ -3,6 +3,43 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Brand Colors */
+  --primary: #4D9C2C;
+  --primary-dark: #355B20;
+  --primary-darker: #36701F;
+  --primary-light: #A4C769;
+  --primary-lighter: #A1B293;
+
+  /* Background Colors */
+  --bg-primary: #F8FCF2;
+  --bg-secondary: #F6FCEA;
+  --bg-tertiary: #FBFEF7;
+  --bg-card: #FDFEFE;
+  --bg-image: #F4F6F1;
+
+  /* Border Colors */
+  --border-primary: #E6EEDF;
+  --border-secondary: #E5EED5;
+  --border-light: #D6E9C6;
+  --border-lighter: #DDE8CC;
+  --border-lightest: #E4F5D7;
+
+  /* Accent Colors */
+  --accent-yellow: #F5A524;
+  --accent-orange: #B86900;
+  --accent-orange-bg: #FFECC7;
+  --accent-red: #E53935;
+  --accent-red-bg: #FEEFEF;
+  --accent-red-heart: #E24B4A;
+
+  /* Stock Progress */
+  --progress-bg: #E8EFE0;
+
+  /* Text Shades */
+  --text-dark: #355B20;
+  --text-medium: #3A5D22;
+  --text-muted: #6C7D5A;
 }
 
 @theme inline {
@@ -11,6 +48,38 @@
   --font-sans: var(--font-inter);
   --font-mono: "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
+
+  /* Custom Color Tokens */
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-darker: var(--primary-darker);
+  --color-primary-light: var(--primary-light);
+  --color-primary-lighter: var(--primary-lighter);
+
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-image: var(--bg-image);
+
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-light: var(--border-light);
+  --color-border-lighter: var(--border-lighter);
+  --color-border-lightest: var(--border-lightest);
+
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-orange-bg: var(--accent-orange-bg);
+  --color-accent-red: var(--accent-red);
+  --color-accent-red-bg: var(--accent-red-bg);
+  --color-accent-red-heart: var(--accent-red-heart);
+
+  --color-progress-bg: var(--progress-bg);
+
+  --color-text-dark: var(--text-dark);
+  --color-text-medium: var(--text-medium);
+  --color-text-muted: var(--text-muted);
 }
 
 body {

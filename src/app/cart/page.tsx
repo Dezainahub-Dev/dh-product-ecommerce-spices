@@ -38,7 +38,7 @@ export default function CartPage() {
     <main className="bg-white text-zinc-900">
       <section className="mx-auto max-w-[1300px] px-6 py-10">
         <nav className="text-sm text-zinc-500">
-          <Link href="/" className="text-[#4D9C2C] hover:underline">
+          <Link href="/" className="text-primary hover:underline">
             Home
           </Link>{" "}
           <span className="mx-2 text-zinc-400">/</span>
@@ -46,12 +46,12 @@ export default function CartPage() {
         </nav>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="rounded-3xl border border-[#E6EEDF] bg-white p-6">
+          <div className="rounded-3xl border border-border-primary bg-white p-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-semibold text-[#355B20]">
+              <h1 className="text-2xl font-semibold text-primary-dark">
                 Your Cart ({totalItems})
               </h1>
-              <button className="text-sm font-semibold text-[#4D9C2C]">
+              <button className="text-sm font-semibold text-primary">
                 Select All Products ({products.length})
               </button>
             </div>
@@ -60,7 +60,7 @@ export default function CartPage() {
               {products.length === 0 && (
                 <p className="text-zinc-500">
                   Your cart is empty.{" "}
-                  <Link href="/shop-now" className="text-[#4D9C2C] underline">
+                  <Link href="/shop-now" className="text-primary underline">
                     Start shopping
                   </Link>
                 </p>
@@ -82,32 +82,32 @@ export default function CartPage() {
                 return (
                   <article
                     key={`${product.slug}-${sku}`}
-                    className="flex flex-col gap-4 rounded-3xl border border-[#E6EEDF] bg-[#FDFEFE] p-4 shadow-sm sm:flex-row sm:items-center"
+                    className="flex flex-col gap-4 rounded-3xl border border-border-primary bg-bg-card p-4 shadow-sm sm:flex-row sm:items-center"
                   >
                   <div className="flex items-start gap-4 sm:flex-1">
                     <input
                       type="checkbox"
                       checked
                       readOnly
-                      className="mt-2 h-5 w-5 rounded border border-[#4D9C2C] accent-[#4D9C2C]"
+                      className="mt-2 h-5 w-5 rounded border border-primary accent-primary"
                     />
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#F4F6F1]">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-bg-image">
                       <PlaceholderThumb />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs uppercase tracking-[0.2em] text-[#4D9C2C]/80">
+                      <p className="text-xs uppercase tracking-[0.2em] text-primary/80">
                         {product.category}
                       </p>
                       <Link
                         href={`/shop-now/${product.slug}`}
-                        className="mt-1 text-base font-semibold text-[#355B20]"
+                        className="mt-1 text-base font-semibold text-primary-dark"
                       >
                         {product.name}
                       </Link>
                       <p className="mt-1 text-xs font-medium text-zinc-500">
-                        Size: <span className="text-[#4D9C2C]">{sku}</span>
+                        Size: <span className="text-primary">{sku}</span>
                       </p>
-                      <div className="mt-2 text-lg font-semibold text-[#4D9C2C]">
+                      <div className="mt-2 text-lg font-semibold text-primary">
                         {formatINR(price * quantity)}
                         {oldPrice && (
                           <span className="ml-3 text-sm font-normal text-zinc-400 line-through">
@@ -136,8 +136,8 @@ export default function CartPage() {
                         onClick={handleMoveToWishlist}
                         className={`text-lg transition ${
                           wishlisted
-                            ? "text-[#E24B4A]"
-                            : "text-zinc-400 hover:text-[#4D9C2C]"
+                            ? "text-accent-red-heart"
+                            : "text-zinc-400 hover:text-primary"
                         }`}
                       >
                         {wishlisted ? "♥" : "♡"}
@@ -159,28 +159,28 @@ export default function CartPage() {
           </div>
 
           <aside className="space-y-6">
-            <div className="rounded-3xl border border-[#E6EEDF] bg-white p-6">
-              <h2 className="text-lg font-semibold text-[#355B20]">Summary</h2>
+            <div className="rounded-3xl border border-border-primary bg-white p-6">
+              <h2 className="text-lg font-semibold text-primary-dark">Summary</h2>
               <dl className="mt-4 space-y-3 text-sm text-zinc-500">
                 <SummaryRow label="Subtotal" value={formatINR(subtotal)} />
                 <SummaryRow label="Delivery Fee" value={deliveryFee === 0 ? "Free" : formatINR(deliveryFee)} />
                 <SummaryRow label="Voucher Discount" value="- ₹0.00" />
                 <SummaryRow label="Estimated Taxes" value={formatINR(taxes)} />
               </dl>
-              <div className="mt-5 flex items-center justify-between text-lg font-semibold text-[#355B20]">
+              <div className="mt-5 flex items-center justify-between text-lg font-semibold text-primary-dark">
                 <span>Total</span>
                 <span>{formatINR(total)}</span>
               </div>
               <Link
                 href="/checkout"
-                className="mt-5 flex w-full items-center justify-center rounded-full bg-[#4D9C2C] px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-[0_15px_35px_rgba(77,156,44,0.35)] transition hover:bg-[#356F1D]"
+                className="mt-5 flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-[0_15px_35px_rgba(77,156,44,0.35)] transition hover:bg-primary-darker"
               >
                 Checkout ({formatINR(total)})
               </Link>
             </div>
 
-            <div className="rounded-3xl border border-[#E6EEDF] bg-white p-6 text-sm text-zinc-600">
-              <h3 className="text-base font-semibold text-[#355B20]">
+            <div className="rounded-3xl border border-border-primary bg-white p-6 text-sm text-zinc-600">
+              <h3 className="text-base font-semibold text-primary-dark">
                 Voucher Discount
               </h3>
               <p className="mt-2">Have a promo code to use?</p>
@@ -188,9 +188,9 @@ export default function CartPage() {
                 <input
                   type="text"
                   defaultValue="AVANORA10"
-                  className="flex-1 rounded-2xl border border-[#DDE8CC] px-4 py-2 text-sm outline-none"
+                  className="flex-1 rounded-2xl border border-border-lighter px-4 py-2 text-sm outline-none"
                 />
-                <button className="rounded-xl bg-[#4D9C2C] px-4 py-2 text-sm font-semibold text-white">
+                <button className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white">
                   Apply
                 </button>
               </div>
@@ -198,21 +198,21 @@ export default function CartPage() {
           </aside>
         </div>
 
-        <section className="mt-16 rounded-3xl border border-[#E6EEDF] bg-white px-6 py-10">
-          <h2 className="text-center text-3xl font-semibold text-[#355B20]">
+        <section className="mt-16 rounded-3xl border border-border-primary bg-white px-6 py-10">
+          <h2 className="text-center text-3xl font-semibold text-primary-dark">
             Recommended for you
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {recommended.map((item) => (
               <article
                 key={item.slug}
-                className="flex flex-col rounded-3xl border border-[#E5EED5] bg-[#FDFEFE] p-4"
+                className="flex flex-col rounded-3xl border border-border-secondary bg-bg-card p-4"
               >
-                <div className="relative flex h-40 items-center justify-center rounded-2xl bg-[#F4F6F1]">
+                <div className="relative flex h-40 items-center justify-center rounded-2xl bg-bg-image">
                   <PlaceholderThumb />
                 </div>
                 <div className="mt-4 space-y-2 text-left">
-                  <p className="text-sm text-[#F5A524]">
+                  <p className="text-sm text-accent-yellow">
                     ★ {item.rating.toFixed(1)}{" "}
                     <span className="text-zinc-400">
                       ({item.reviews.toLocaleString()} Reviews)
@@ -224,7 +224,7 @@ export default function CartPage() {
                   >
                     {item.name}
                   </Link>
-                  <p className="text-lg font-semibold text-[#4D9C2C]">
+                  <p className="text-lg font-semibold text-primary">
                     {formatINR(item.price)}
                     {item.oldPrice && (
                       <span className="ml-3 text-base font-normal text-zinc-400 line-through">
@@ -239,7 +239,7 @@ export default function CartPage() {
           <div className="mt-8 flex justify-center">
             <Link
               href="/shop-now"
-              className="rounded-full border border-[#4D9C2C] px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#4D9C2C]"
+              className="rounded-full border border-primary px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-primary"
             >
               See All Products
             </Link>
@@ -277,11 +277,11 @@ function QuantityControl({
   onChange: (qty: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-[#DDE8CC] px-4 py-2 text-base font-semibold text-[#355B20]">
+    <div className="flex items-center gap-4 rounded-xl border border-border-lighter px-4 py-2 text-base font-semibold text-primary-dark">
       <button
         type="button"
         onClick={() => onChange(Math.max(1, quantity - 1))}
-        className="text-2xl leading-none text-[#4D9C2C]"
+        className="text-2xl leading-none text-primary"
       >
         -
       </button>
@@ -289,7 +289,7 @@ function QuantityControl({
       <button
         type="button"
         onClick={() => onChange(quantity + 1)}
-        className="text-2xl leading-none text-[#4D9C2C]"
+        className="text-2xl leading-none text-primary"
       >
         +
       </button>
@@ -301,7 +301,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
       <span>{label}</span>
-      <span className="font-semibold text-[#355B20]">{value}</span>
+      <span className="font-semibold text-primary-dark">{value}</span>
     </div>
   );
 }

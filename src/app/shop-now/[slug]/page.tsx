@@ -38,42 +38,42 @@ export default async function Page({ params }: PageProps) {
     <main className="bg-white text-zinc-900">
       <section className="mx-auto max-w-[1300px] px-6 py-8">
         <nav className="text-sm text-zinc-500">
-          <Link href="/" className="text-[#4D9C2C] hover:underline">
+          <Link href="/" className="text-primary hover:underline">
             Home
           </Link>{" "}
           <span className="mx-2 text-zinc-400">/</span>
-          <Link href="/shop-now" className="text-[#4D9C2C] hover:underline">
+          <Link href="/shop-now" className="text-primary hover:underline">
             Shop Now
           </Link>{" "}
           <span className="mx-2 text-zinc-400">/</span>
           <span className="font-medium text-zinc-700">{product.name}</span>
         </nav>
 
-        <div className="mt-6 grid gap-10 rounded-3xl border border-[#E6EEDF] bg-white p-6 lg:grid-cols-[420px_1fr]">
+        <div className="mt-6 grid gap-10 rounded-3xl border border-border-primary bg-white p-6 lg:grid-cols-[420px_1fr]">
           <ProductGallery />
 
           <div className="space-y-5">
             <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4D9C2C]">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
                 {product.category}
               </p>
-              <h1 className="text-3xl font-semibold text-[#355B20]">{product.name}</h1>
+              <h1 className="text-3xl font-semibold text-primary-dark">{product.name}</h1>
               <div className="flex items-center gap-3 text-sm text-zinc-500">
-                <span className="inline-flex items-center gap-1 text-base font-semibold text-[#F5A524]">
+                <span className="inline-flex items-center gap-1 text-base font-semibold text-accent-yellow">
                   ★ {product.rating.toFixed(1)}
                 </span>
                 <span>({product.reviews.toLocaleString()} Reviews)</span>
-                <button className="font-semibold text-[#4D9C2C] hover:underline">
+                <button className="font-semibold text-primary hover:underline">
                   See All Reviews
                 </button>
               </div>
               <p className="text-base text-zinc-600">
                 {product.description.slice(0, 220)}{" "}
-                <button className="text-[#4D9C2C] font-semibold">See more...</button>
+                <button className="text-primary font-semibold">See more...</button>
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 rounded-2xl border border-[#E6EEDF] bg-[#F8FCF2] p-4 text-lg font-semibold text-[#4D9C2C] sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-2xl border border-border-primary bg-bg-primary p-4 text-lg font-semibold text-primary sm:flex-row sm:items-center sm:justify-between">
               <div>
                 {formatINR(product.price)}
                 {product.oldPrice && (
@@ -83,18 +83,18 @@ export default async function Page({ params }: PageProps) {
                 )}
               </div>
               {product.oldPrice && (
-                <span className="rounded-full bg-[#FFECC7] px-4 py-1 text-sm font-semibold text-[#B86900]">
+                <span className="rounded-full bg-accent-orange-bg px-4 py-1 text-sm font-semibold text-accent-orange">
                   {Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% OFF
                 </span>
               )}
             </div>
 
-            <div className="flex flex-col gap-4 rounded-2xl border border-[#E6EEDF] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 rounded-2xl border border-border-primary p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-zinc-500">{product.stock} Stock Available</p>
-                <div className="mt-2 h-2 w-48 rounded-full bg-[#E8EFE0]">
+                <div className="mt-2 h-2 w-48 rounded-full bg-progress-bg">
                   <div
-                    className="h-full rounded-full bg-[#4D9C2C]"
+                    className="h-full rounded-full bg-primary"
                     style={{ width: `${Math.min(100, (product.stock / product.totalStock) * 100)}%` }}
                   />
                 </div>
@@ -122,15 +122,15 @@ function ProductGallery() {
         {[1, 2, 3, 4].map((item) => (
           <button
             key={item}
-            className={`flex h-16 w-16 items-center justify-center rounded-2xl border border-[#E6EEDF] bg-[#F4F6F1] ${
-              item === 1 ? "ring-2 ring-[#4D9C2C]" : ""
+            className={`flex h-16 w-16 items-center justify-center rounded-2xl border border-border-primary bg-bg-image ${
+              item === 1 ? "ring-2 ring-primary" : ""
             }`}
           >
             <PlaceholderThumb />
           </button>
         ))}
       </div>
-      <div className="flex h-[360px] w-full items-center justify-center rounded-3xl border border-[#E6EEDF] bg-[#F4F6F1]">
+      <div className="flex h-[360px] w-full items-center justify-center rounded-3xl border border-border-primary bg-bg-image">
         <PlaceholderThumb large />
       </div>
     </div>
@@ -159,26 +159,26 @@ function PlaceholderThumb({ large }: { large?: boolean }) {
 
 function RelateProducts({ related }: { related: Product[] }) {
   return (
-    <section className="mt-16 rounded-3xl border border-[#E6EEDF] bg-white px-6 py-10">
-      <h2 className="text-center text-3xl font-semibold text-[#355B20]">Related Products</h2>
+    <section className="mt-16 rounded-3xl border border-border-primary bg-white px-6 py-10">
+      <h2 className="text-center text-3xl font-semibold text-primary-dark">Related Products</h2>
       <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {related.map((item) => {
           if (!item) return null;
           return (
             <article
               key={item.slug}
-              className="flex flex-col rounded-3xl border border-[#E5EED5] bg-[#FDFEFE] p-4 shadow-[0_10px_32px_rgba(77,156,44,0.06)]"
+              className="flex flex-col rounded-3xl border border-border-secondary bg-bg-card p-4 shadow-[0_10px_32px_rgba(77,156,44,0.06)]"
             >
-              <div className="relative flex h-40 items-center justify-center rounded-2xl bg-[#F4F6F1]">
+              <div className="relative flex h-40 items-center justify-center rounded-2xl bg-bg-image">
                 <PlaceholderThumb />
               </div>
               <div className="mt-4 space-y-2 text-left">
-                <p className="text-sm text-[#F5A524]">
+                <p className="text-sm text-accent-yellow">
                   ★ {item.rating.toFixed(1)}{" "}
                   <span className="text-zinc-400">({item.reviews.toLocaleString()} Reviews)</span>
                 </p>
                 <h3 className="text-base font-semibold text-zinc-800">{item.name}</h3>
-                <p className="text-lg font-semibold text-[#4D9C2C]">
+                <p className="text-lg font-semibold text-primary">
                   {formatINR(item.price)}
                   {item.oldPrice && (
                     <span className="ml-3 text-base font-normal text-zinc-400 line-through">
@@ -194,7 +194,7 @@ function RelateProducts({ related }: { related: Product[] }) {
       <div className="mt-8 flex justify-center">
         <Link
           href="/shop-now"
-          className="rounded-full border border-[#4D9C2C] px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#4D9C2C]"
+          className="rounded-full border border-primary px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-primary"
         >
           See All Products
         </Link>

@@ -1,7 +1,14 @@
 'use client';
 
 import Link from "next/link";
-import { ChangeEvent, FormEvent, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Footer } from "@/components/footer";
 import { useWishlistStore } from "@/store/wishlist-store";
 
@@ -87,6 +94,23 @@ export function ProfileAddressPage() {
   const [profileForm, setProfileForm] = useState(initialProfile);
   const [profileDraft, setProfileDraft] = useState(initialProfile);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const firstNameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditingProfile) {
+      firstNameInputRef.current?.focus();
+    }
+  }, [isEditingProfile]);
+
+  const startEditingProfile = () => {
+    setProfileDraft({ ...profileForm });
+    setIsEditingProfile(true);
+  };
+
+  const cancelEditingProfile = () => {
+    setProfileDraft({ ...profileForm });
+    setIsEditingProfile(false);
+  };
 
   const handleProfileChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -105,7 +129,7 @@ export function ProfileAddressPage() {
     setActiveTab(section);
     if (section !== "profile") {
       setIsEditingProfile(false);
-      setProfileDraft(profileForm);
+      setProfileDraft({ ...profileForm });
     }
   };
 
@@ -117,83 +141,86 @@ export function ProfileAddressPage() {
             onSubmit={handleProfileSubmit}
             className="space-y-5 text-sm text-[#355B20]"
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              <ProfileInput
-                label="First Name"
-                name="firstName"
-                value={profileDraft.firstName}
-                onChange={handleProfileChange}
-                disabled={!isEditingProfile}
-              />
-              <ProfileInput
-                label="Last Name"
-                name="lastName"
-                value={profileDraft.lastName}
-                onChange={handleProfileChange}
-                disabled={!isEditingProfile}
-              />
-            </div>
-            <ProfileInput
-              label="Email"
-              name="email"
-              type="email"
-              value={profileDraft.email}
-              onChange={handleProfileChange}
+            <fieldset
               disabled={!isEditingProfile}
-            />
-            <ProfileInput
-              label="Phone Number"
-              name="phone"
-              value={profileDraft.phone}
-              onChange={handleProfileChange}
-              disabled={!isEditingProfile}
-            />
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-[#A1B293]">
-                  Gender
-                </p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {["female", "male", "other"].map((option) => (
-                    <label
-                      key={option}
-                      className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold capitalize transition ${
-                        profileDraft.gender === option
-                          ? "border-[#4D9C2C] text-[#355B20]"
-                          : "border-[#E6EEDF] text-zinc-500"
-                      } ${!isEditingProfile ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
-                    >
-                      <input
-                        type="radio"
-                        name="gender"
-                        value={option}
-                        checked={profileDraft.gender === option}
-                        onChange={handleProfileChange}
-                        disabled={!isEditingProfile}
-                        className="text-[#4D9C2C]"
-                      />
-                      {option}
-                    </label>
-                  ))}
-                </div>
+              className="space-y-5"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <ProfileInput
+                  ref={firstNameInputRef}
+                  label="First Name"
+                  name="firstName"
+                  value={profileDraft.firstName}
+                  onChange={handleProfileChange}
+                  disabled={!isEditingProfile}
+                />
+                <ProfileInput
+                  label="Last Name"
+                  name="lastName"
+                  value={profileDraft.lastName}
+                  onChange={handleProfileChange}
+                  disabled={!isEditingProfile}
+                />
               </div>
               <ProfileInput
-                label="Date of Birth"
-                name="dob"
-                type="date"
-                value={profileDraft.dob}
+                label="Email"
+                name="email"
+                type="email"
+                value={profileDraft.email}
                 onChange={handleProfileChange}
                 disabled={!isEditingProfile}
               />
-            </div>
+              <ProfileInput
+                label="Phone Number"
+                name="phone"
+                value={profileDraft.phone}
+                onChange={handleProfileChange}
+                disabled={!isEditingProfile}
+              />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#A1B293]">
+                    Gender
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {["female", "male", "other"].map((option) => (
+                      <label
+                        key={option}
+                        className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold capitalize transition ${
+                          profileDraft.gender === option
+                            ? "border-[#4D9C2C] text-[#355B20]"
+                            : "border-[#E6EEDF] text-zinc-500"
+                        } ${!isEditingProfile ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
+                      >
+                        <input
+                          type="radio"
+                          name="gender"
+                          value={option}
+                          checked={profileDraft.gender === option}
+                          onChange={handleProfileChange}
+                          disabled={!isEditingProfile}
+                          className="text-[#4D9C2C]"
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <ProfileInput
+                  label="Date of Birth"
+                  name="dob"
+                  type="date"
+                  value={profileDraft.dob}
+                  onChange={handleProfileChange}
+                  disabled={!isEditingProfile}
+                />
+              </div>
+            </fieldset>
             <div className="flex justify-end gap-3">
               {isEditingProfile && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setProfileDraft(profileForm);
-                    setIsEditingProfile(false);
-                  }}
+                  onClick={cancelEditingProfile}
                   className="rounded-full border border-[#D6E9C6] px-6 py-2 text-sm font-semibold text-[#355B20]"
                 >
                   Cancel
@@ -209,10 +236,7 @@ export function ProfileAddressPage() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => {
-                    setProfileDraft(profileForm);
-                    setIsEditingProfile(true);
-                  }}
+                  onClick={startEditingProfile}
                   className="rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)]"
                 >
                   Edit Profile
@@ -391,18 +415,23 @@ type ProfileInputProps = {
   type?: string;
 };
 
-function ProfileInput({ label, name, value, onChange, disabled, type = "text" }: ProfileInputProps) {
-  return (
-    <label className="block rounded-2xl border border-[#E6EEDF] px-5 py-4">
-      <span className="text-xs uppercase tracking-[0.3em] text-[#A1B293]">{label}</span>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        className="mt-2 w-full border-none bg-transparent text-base font-semibold text-[#355B20] outline-none disabled:text-zinc-500"
-      />
-    </label>
-  );
-}
+const ProfileInput = forwardRef<HTMLInputElement, ProfileInputProps>(
+  ({ label, name, value, onChange, disabled, type = "text" }, ref) => {
+    return (
+      <label className="block rounded-2xl border border-[#E6EEDF] px-5 py-4">
+        <span className="text-xs uppercase tracking-[0.3em] text-[#A1B293]">{label}</span>
+        <input
+          ref={ref}
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          className="mt-2 w-full border-none bg-transparent text-base font-semibold text-[#355B20] outline-none disabled:text-zinc-500"
+        />
+      </label>
+    );
+  }
+);
+
+ProfileInput.displayName = "ProfileInput";

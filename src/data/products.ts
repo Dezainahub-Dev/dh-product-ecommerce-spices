@@ -1,3 +1,10 @@
+export type ProductSKU = {
+  size: string;
+  price: number;
+  oldPrice?: number;
+  stock: number;
+};
+
 export type Product = {
   slug: string;
   name: string;
@@ -16,6 +23,7 @@ export type Product = {
   ingredients: string[];
   forWho: string[];
   relatedSlugs: string[];
+  skus: ProductSKU[];
 };
 
 export const products: Product[] = [
@@ -49,6 +57,13 @@ export const products: Product[] = [
       "skin-bae-sun-shield-spf50",
       "lactic-acid-serum-30ml",
     ],
+    skus: [
+      { size: "50gm", price: 14.99, oldPrice: 20.99, stock: 36 },
+      { size: "100gm", price: 24.99, oldPrice: 34.99, stock: 42 },
+      { size: "250gm", price: 54.99, oldPrice: 74.99, stock: 28 },
+      { size: "500gm", price: 99.99, oldPrice: 129.99, stock: 15 },
+      { size: "1kg", price: 179.99, oldPrice: 229.99, stock: 8 },
+    ],
   },
   {
     slug: "anti-aging-package-retinol-ampoule",
@@ -75,6 +90,13 @@ export const products: Product[] = [
       "skin-serum-brighten-vitamin-c-30ml",
       "marine-collagen-serum-30ml",
       "lactic-acid-serum-30ml",
+    ],
+    skus: [
+      { size: "50gm", price: 24.99, oldPrice: 34.99, stock: 58 },
+      { size: "100gm", price: 44.99, oldPrice: 59.99, stock: 35 },
+      { size: "250gm", price: 99.99, oldPrice: 129.99, stock: 22 },
+      { size: "500gm", price: 179.99, oldPrice: 229.99, stock: 12 },
+      { size: "1kg", price: 319.99, oldPrice: 399.99, stock: 6 },
     ],
   },
   {
@@ -103,6 +125,13 @@ export const products: Product[] = [
       "anti-aging-package-retinol-ampoule",
       "skin-bae-sun-shield-spf50",
     ],
+    skus: [
+      { size: "50gm", price: 24.99, oldPrice: 34.99, stock: 42 },
+      { size: "100gm", price: 44.99, oldPrice: 59.99, stock: 38 },
+      { size: "250gm", price: 99.99, oldPrice: 129.99, stock: 25 },
+      { size: "500gm", price: 179.99, oldPrice: 229.99, stock: 14 },
+      { size: "1kg", price: 319.99, oldPrice: 399.99, stock: 7 },
+    ],
   },
   {
     slug: "skin-bae-sun-shield-spf50",
@@ -129,6 +158,13 @@ export const products: Product[] = [
       "skin-serum-brighten-vitamin-c-30ml",
       "marine-collagen-serum-30ml",
       "lactic-acid-serum-30ml",
+    ],
+    skus: [
+      { size: "50gm", price: 19.99, oldPrice: 34.99, stock: 65 },
+      { size: "100gm", price: 34.99, oldPrice: 54.99, stock: 48 },
+      { size: "250gm", price: 74.99, oldPrice: 109.99, stock: 32 },
+      { size: "500gm", price: 134.99, oldPrice: 189.99, stock: 18 },
+      { size: "1kg", price: 249.99, oldPrice: 329.99, stock: 10 },
     ],
   },
   {
@@ -157,6 +193,13 @@ export const products: Product[] = [
       "skin-bae-sun-shield-spf50",
       "anti-aging-package-retinol-ampoule",
     ],
+    skus: [
+      { size: "50gm", price: 24.99, oldPrice: 34.99, stock: 47 },
+      { size: "100gm", price: 44.99, oldPrice: 59.99, stock: 36 },
+      { size: "250gm", price: 99.99, oldPrice: 129.99, stock: 24 },
+      { size: "500gm", price: 179.99, oldPrice: 229.99, stock: 13 },
+      { size: "1kg", price: 319.99, oldPrice: 399.99, stock: 6 },
+    ],
   },
   {
     slug: "tranexamic-acid-serum-30ml",
@@ -184,6 +227,13 @@ export const products: Product[] = [
       "lactic-acid-serum-30ml",
       "marine-collagen-serum-30ml",
     ],
+    skus: [
+      { size: "50gm", price: 9.99, oldPrice: 24.99, stock: 38 },
+      { size: "100gm", price: 17.99, oldPrice: 39.99, stock: 32 },
+      { size: "250gm", price: 39.99, oldPrice: 79.99, stock: 28 },
+      { size: "500gm", price: 69.99, oldPrice: 139.99, stock: 16 },
+      { size: "1kg", price: 129.99, oldPrice: 249.99, stock: 8 },
+    ],
   },
   {
     slug: "shield-defense-mist-30ml",
@@ -209,6 +259,13 @@ export const products: Product[] = [
       "skin-serum-brighten-vitamin-c-30ml",
       "skin-bae-sun-shield-spf50",
     ],
+    skus: [
+      { size: "50gm", price: 21.99, stock: 72 },
+      { size: "100gm", price: 39.99, stock: 54 },
+      { size: "250gm", price: 84.99, stock: 38 },
+      { size: "500gm", price: 154.99, stock: 22 },
+      { size: "1kg", price: 279.99, stock: 12 },
+    ],
   },
   {
     slug: "intensive-repair-cream-35ml",
@@ -230,6 +287,13 @@ export const products: Product[] = [
     relatedSlugs: [
       "anti-aging-package-retinol-ampoule",
       "tranexamic-acid-serum-30ml",
+    ],
+    skus: [
+      { size: "50gm", price: 29.99, stock: 54 },
+      { size: "100gm", price: 54.99, stock: 42 },
+      { size: "250gm", price: 119.99, stock: 30 },
+      { size: "500gm", price: 214.99, stock: 18 },
+      { size: "1kg", price: 389.99, stock: 9 },
     ],
   },
 ];

@@ -6,20 +6,22 @@ import { getProductBySlug, Product } from "@/data/products";
 export type CartItem = {
   slug: string;
   quantity: number;
+  sku: string;
 };
 
 type CartProductEntry = {
   product: Product;
   quantity: number;
+  sku: string;
 };
 
 type CartStore = {
   items: CartItem[];
   products: CartProductEntry[];
   subtotal: number;
-  addItem: (slug: string, quantity?: number) => void;
-  updateQuantity: (slug: string, quantity: number) => void;
-  removeItem: (slug: string) => void;
+  addItem: (slug: string, quantity?: number, sku?: string) => void;
+  updateQuantity: (slug: string, sku: string, quantity: number) => void;
+  removeItem: (slug: string, sku: string) => void;
   clearCart: () => void;
 };
 
@@ -27,10 +29,10 @@ const mapItemsToProducts = (
   items: CartItem[]
 ): CartProductEntry[] =>
   items
-    .map(({ slug, quantity }) => {
+    .map(({ slug, quantity, sku }) => {
       const product = getProductBySlug(slug);
       if (!product) return null;
-      return { product, quantity };
+      return { product, quantity, sku };
     })
     .filter(
       (
@@ -42,8 +44,11 @@ const calculateSubtotal = (
   products: CartProductEntry[]
 ) =>
   products.reduce(
-    (total, entry) =>
-      total + entry.product.price * entry.quantity,
+    (total, entry) => {
+      const skuData = entry.product.skus.find(s => s.size === entry.sku);
+      const price = skuData?.price || entry.product.price;
+      return total + price * entry.quantity;
+    },
     0
   );
 
@@ -51,21 +56,21 @@ export const useCartStore = create<CartStore>((set) => ({
   items: [],
   products: [],
   subtotal: 0,
-  addItem: (slug, quantity = 1) =>
+  addItem: (slug, quantity = 1, sku = "50gm") =>
     set((state) => {
       const existing = state.items.find(
-        (item) => item.slug === slug
+        (item) => item.slug === slug && item.sku === sku
       );
-      const items = existing
+      const items: CartItem[] = existing
         ? state.items.map((item) =>
-            item.slug === slug
+            item.slug === slug && item.sku === sku
               ? {
                   ...item,
                   quantity: item.quantity + quantity,
                 }
               : item
           )
-        : [...state.items, { slug, quantity }];
+        : [...state.items, { slug, quantity, sku }];
       const products = mapItemsToProducts(items);
       return {
         items,
@@ -73,11 +78,11 @@ export const useCartStore = create<CartStore>((set) => ({
         subtotal: calculateSubtotal(products),
       };
     }),
-  updateQuantity: (slug, quantity) =>
+  updateQuantity: (slug, sku, quantity) =>
     set((state) => {
-      const items = state.items
+      const items: CartItem[] = state.items
         .map((item) =>
-          item.slug === slug ? { ...item, quantity } : item
+          item.slug === slug && item.sku === sku ? { ...item, quantity } : item
         )
         .filter((item) => item.quantity > 0);
       const products = mapItemsToProducts(items);
@@ -87,10 +92,10 @@ export const useCartStore = create<CartStore>((set) => ({
         subtotal: calculateSubtotal(products),
       };
     }),
-  removeItem: (slug) =>
+  removeItem: (slug, sku) =>
     set((state) => {
       const items = state.items.filter(
-        (item) => item.slug !== slug
+        (item) => !(item.slug === slug && item.sku === sku)
       );
       const products = mapItemsToProducts(items);
       return {

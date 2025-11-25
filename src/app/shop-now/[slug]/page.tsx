@@ -102,7 +102,7 @@ export default async function Page({ params }: PageProps) {
               <p className="text-sm text-zinc-500">100 Item Limit</p>
             </div>
 
-            <AddToCartPanel slug={product.slug} />
+            <AddToCartPanel slug={product.slug} product={product} />
 
             <ProductInfoTabs product={product} />
           </div>

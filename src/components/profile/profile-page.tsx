@@ -137,12 +137,9 @@ export function ProfileAddressPage() {
     switch (activeTab) {
       case "profile":
         return (
-          <form
-            onSubmit={handleProfileSubmit}
-            className="space-y-5 text-sm text-[#355B20]"
-          >
-            <fieldset
-              disabled={!isEditingProfile}
+          <div className="space-y-5 text-sm text-[#355B20]">
+            <form
+              onSubmit={handleProfileSubmit}
               className="space-y-5"
             >
               <div className="grid gap-4 md:grid-cols-2">
@@ -215,7 +212,7 @@ export function ProfileAddressPage() {
                   disabled={!isEditingProfile}
                 />
               </div>
-            </fieldset>
+            </form>
             <div className="flex justify-end gap-3">
               {isEditingProfile && (
                 <button
@@ -228,7 +225,11 @@ export function ProfileAddressPage() {
               )}
               {isEditingProfile ? (
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleProfileSubmit(e as any);
+                  }}
                   className="rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)]"
                 >
                   Save Profile
@@ -237,13 +238,13 @@ export function ProfileAddressPage() {
                 <button
                   type="button"
                   onClick={startEditingProfile}
-                  className="rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)]"
+                  className="rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)] cursor-pointer"
                 >
                   Edit Profile
                 </button>
               )}
             </div>
-          </form>
+          </div>
         );
       case "orders":
         return (

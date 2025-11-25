@@ -65,19 +65,23 @@ export default function CartPage() {
                   </Link>
                 </p>
               )}
-              {products.map(({ product, quantity }) => {
+              {products.map(({ product, quantity, sku }) => {
                 const wishlisted = wishlistItems.includes(
                   product.slug
                 );
+                const skuData = product.skus.find(s => s.size === sku);
+                const price = skuData?.price || product.price;
+                const oldPrice = skuData?.oldPrice || product.oldPrice;
+
                 const handleMoveToWishlist = () => {
                   if (!wishlisted) {
                     addWishlistItem(product.slug);
                   }
-                  removeItem(product.slug);
+                  removeItem(product.slug, sku);
                 };
                 return (
                   <article
-                    key={product.slug}
+                    key={`${product.slug}-${sku}`}
                     className="flex flex-col gap-4 rounded-3xl border border-[#E6EEDF] bg-[#FDFEFE] p-4 shadow-sm sm:flex-row sm:items-center"
                   >
                   <div className="flex items-start gap-4 sm:flex-1">
@@ -100,15 +104,18 @@ export default function CartPage() {
                       >
                         {product.name}
                       </Link>
+                      <p className="mt-1 text-xs font-medium text-zinc-500">
+                        Size: <span className="text-[#4D9C2C]">{sku}</span>
+                      </p>
                       <div className="mt-2 text-lg font-semibold text-[#4D9C2C]">
-                        {formatINR(product.price * quantity)}
-                        {product.oldPrice && (
+                        {formatINR(price * quantity)}
+                        {oldPrice && (
                           <span className="ml-3 text-sm font-normal text-zinc-400 line-through">
-                            {formatINR(product.oldPrice * quantity)}
+                            {formatINR(oldPrice * quantity)}
                           </span>
                         )}
                         <span className="ml-2 text-xs font-medium text-zinc-500">
-                          ({formatINR(product.price)} each)
+                          ({formatINR(price)} each)
                         </span>
                       </div>
                     </div>
@@ -116,7 +123,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between gap-4 sm:w-auto">
                     <QuantityControl
                       quantity={quantity}
-                      onChange={(qty) => updateQuantity(product.slug, qty)}
+                      onChange={(qty) => updateQuantity(product.slug, sku, qty)}
                     />
                     <div className="flex items-center gap-3 text-zinc-400">
                       <button
@@ -138,7 +145,7 @@ export default function CartPage() {
                       <button
                         type="button"
                         aria-label="Remove"
-                        onClick={() => removeItem(product.slug)}
+                        onClick={() => removeItem(product.slug, sku)}
                         className="text-xl text-zinc-500"
                       >
                         🗑

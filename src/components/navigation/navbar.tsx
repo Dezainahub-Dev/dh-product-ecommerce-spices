@@ -8,7 +8,7 @@ import { useWishlistStore } from "@/store/wishlist-store";
 
 const navLinks = [
   { label: "Home", href: "#", isActive: true },
-  { label: "Spices", href: "#spices" },
+  { label: "Spices", href: "/shop-now" },
   { label: "Nuts & Seeds", href: "#nuts" },
   { label: "Contact Us", href: "#contact" },
 ];

@@ -69,6 +69,18 @@ const orders = [
     total: "₹3,499",
     status: "Shipped",
     summary: "Cardamom, Nutmeg & Cashew Pack",
+    items: [
+      { name: "Premium Cardamom", quantity: 2, price: "₹899" },
+      { name: "Organic Nutmeg", quantity: 1, price: "₹699" },
+      { name: "Roasted Cashews", quantity: 3, price: "₹1,001" },
+    ],
+    shippingAddress: {
+      name: "Jessica Laura",
+      phone: "+12 345 678 910",
+      address: "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
+    },
+    paymentMethod: "Credit Card ending in 4242",
+    trackingNumber: "TRK-2025-001234",
   },
   {
     id: "INV-20487",
@@ -76,6 +88,18 @@ const orders = [
     total: "₹2,199",
     status: "Delivered",
     summary: "Premium Spice Bundle",
+    items: [
+      { name: "Cumin Seeds", quantity: 2, price: "₹599" },
+      { name: "Black Pepper", quantity: 1, price: "₹799" },
+      { name: "Turmeric Powder", quantity: 2, price: "₹801" },
+    ],
+    shippingAddress: {
+      name: "Jessica Laura",
+      phone: "+12 345 678 910",
+      address: "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
+    },
+    paymentMethod: "Credit Card ending in 4242",
+    trackingNumber: "TRK-2024-009876",
   },
 ];
 
@@ -94,6 +118,7 @@ export function ProfileAddressPage() {
   const [profileForm, setProfileForm] = useState(initialProfile);
   const [profileDraft, setProfileDraft] = useState(initialProfile);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<typeof orders[0] | null>(null);
   const firstNameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -131,6 +156,14 @@ export function ProfileAddressPage() {
       setIsEditingProfile(false);
       setProfileDraft({ ...profileForm });
     }
+  };
+
+  const handleViewOrderDetails = (order: typeof orders[0]) => {
+    setSelectedOrder(order);
+  };
+
+  const handleCloseOrderDetails = () => {
+    setSelectedOrder(null);
   };
 
   const renderContent = () => {
@@ -265,7 +298,10 @@ export function ProfileAddressPage() {
                   <span className="rounded-full bg-bg-secondary px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
                     {order.status}
                   </span>
-                  <button className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary-dark">
+                  <button
+                    onClick={() => handleViewOrderDetails(order)}
+                    className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary-dark hover:bg-bg-secondary transition"
+                  >
                     View Details
                   </button>
                 </div>
@@ -338,6 +374,138 @@ export function ProfileAddressPage() {
 
   return (
     <main className="bg-white text-primary-dark">
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold text-primary-dark">
+                  Order Details
+                </h2>
+                <p className="mt-1 text-sm text-zinc-500">Order {selectedOrder.id}</p>
+              </div>
+              <button
+                onClick={handleCloseOrderDetails}
+                className="rounded-full p-2 text-zinc-500 hover:bg-bg-secondary transition"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-6">
+              {/* Order Summary */}
+              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
+                  Order Summary
+                </h3>
+                <div className="mt-3 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Order Date:</span>
+                    <span className="font-semibold text-primary-dark">
+                      {selectedOrder.date}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Status:</span>
+                    <span className="rounded-full bg-bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                      {selectedOrder.status}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Tracking Number:</span>
+                    <span className="font-semibold text-primary">
+                      {selectedOrder.trackingNumber}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Items */}
+              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
+                  Items
+                </h3>
+                <div className="mt-3 space-y-3">
+                  {selectedOrder.items.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between border-b border-border-primary pb-3 last:border-b-0 last:pb-0"
+                    >
+                      <div>
+                        <p className="font-semibold text-primary-dark">{item.name}</p>
+                        <p className="text-sm text-zinc-500">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-semibold text-primary">{item.price}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-border-primary pt-3">
+                  <span className="text-base font-semibold text-primary-dark">
+                    Total
+                  </span>
+                  <span className="text-lg font-bold text-primary">
+                    {selectedOrder.total}
+                  </span>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
+                  Shipping Address
+                </h3>
+                <div className="mt-3 text-sm">
+                  <p className="font-semibold text-primary-dark">
+                    {selectedOrder.shippingAddress.name}
+                  </p>
+                  <p className="mt-1 text-zinc-500">
+                    {selectedOrder.shippingAddress.phone}
+                  </p>
+                  <p className="mt-2 text-zinc-600">
+                    {selectedOrder.shippingAddress.address}
+                  </p>
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
+                  Payment Method
+                </h3>
+                <p className="mt-3 text-sm font-semibold text-primary-dark">
+                  {selectedOrder.paymentMethod}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={handleCloseOrderDetails}
+                className="rounded-full border border-border-light px-6 py-2 text-sm font-semibold text-primary-dark hover:bg-bg-secondary transition"
+              >
+                Close
+              </button>
+              <button className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)] hover:bg-primary/90 transition">
+                Track Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="mx-auto max-w-[1300px] px-6 py-10">
         <nav className="text-sm text-zinc-500">
           <Link href="/" className="text-primary hover:underline">

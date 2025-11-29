@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ChangeEvent,
   FormEvent,
@@ -11,6 +12,9 @@ import {
 } from "react";
 import { Footer } from "@/components/footer";
 import { useWishlistStore } from "@/store/wishlist-store";
+import { authService, ProfileResponse } from "@/lib/auth";
+import { validators } from "@/lib/validators";
+import { AlertCircleIcon } from "@/components/icons";
 
 const profileMenu = [
   { label: "Profile Details", value: "profile" },
@@ -20,47 +24,6 @@ const profileMenu = [
 ] as const;
 
 type ProfileSection = (typeof profileMenu)[number]["value"];
-
-const addresses = [
-  {
-    id: 1,
-    name: "Jessica Laura",
-    phone: "+12 345 678 910",
-    label: "Home",
-    lines: [
-      "South Merdeka Street, Kiuddalem, Klojen, South Merdeka Street,",
-      "South Merdeka Street, Kiuddalem, Klojen District,",
-      "Malang City, East Java 65119",
-    ],
-  },
-  {
-    id: 2,
-    name: "Jessica Laura",
-    phone: "+12 345 678 910",
-    label: "Home",
-    lines: [
-      "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
-    ],
-  },
-  {
-    id: 3,
-    name: "Jessica Laura",
-    phone: "+12 345 678 910",
-    label: "Home",
-    lines: [
-      "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
-    ],
-  },
-  {
-    id: 4,
-    name: "Jessica Laura",
-    phone: "+12 345 678 910",
-    label: "Home",
-    lines: [
-      "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
-    ],
-  },
-];
 
 const orders = [
   {
@@ -103,23 +66,59 @@ const orders = [
   },
 ];
 
-const initialProfile = {
-  firstName: "Jessica",
-  lastName: "Laura",
-  email: "jessica.laura@email.com",
-  phone: "+12 345 678 910",
-  gender: "female",
-  dob: "1994-05-12",
-};
-
 export function ProfileAddressPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<ProfileSection>("profile");
   const wishlistProducts = useWishlistStore((state) => state.products);
-  const [profileForm, setProfileForm] = useState(initialProfile);
-  const [profileDraft, setProfileDraft] = useState(initialProfile);
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
+  const [profileDraft, setProfileDraft] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    gender: '',
+    dateOfBirth: '',
+    marketingOptIn: false,
+  });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<typeof orders[0] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [updateError, setUpdateError] = useState('');
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const firstNameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!authService.isAuthenticated()) {
+        router.push('/login?redirect=/profile');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await authService.getProfile();
+        setProfile(data);
+        setProfileDraft({
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          phone: data.phone || '',
+          gender: data.gender || '',
+          dateOfBirth: data.dateOfBirth ? data.dateOfBirth.split('T')[0] : '',
+          marketingOptIn: data.marketingOptIn || false,
+        });
+      } catch (err: any) {
+        setError(err.message || 'Failed to load profile');
+        if (err.message?.includes('Session expired') || err.message?.includes('401')) {
+          router.push('/login?redirect=/profile');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [router]);
 
   useEffect(() => {
     if (isEditingProfile) {
@@ -128,26 +127,112 @@ export function ProfileAddressPage() {
   }, [isEditingProfile]);
 
   const startEditingProfile = () => {
-    setProfileDraft({ ...profileForm });
+    if (profile) {
+      setProfileDraft({
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        phone: profile.phone || '',
+        gender: profile.gender || '',
+        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
+        marketingOptIn: profile.marketingOptIn || false,
+      });
+    }
     setIsEditingProfile(true);
+    setUpdateError('');
+    setUpdateSuccess(false);
+    setValidationErrors({});
   };
 
   const cancelEditingProfile = () => {
-    setProfileDraft({ ...profileForm });
+    if (profile) {
+      setProfileDraft({
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        phone: profile.phone || '',
+        gender: profile.gender || '',
+        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
+        marketingOptIn: profile.marketingOptIn || false,
+      });
+    }
     setIsEditingProfile(false);
+    setUpdateError('');
+    setUpdateSuccess(false);
+    setValidationErrors({});
   };
 
   const handleProfileChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
-    setProfileDraft((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = event.target;
+    const newValue = type === 'checkbox' ? (event.target as HTMLInputElement).checked : value;
+    setProfileDraft((prev) => ({ ...prev, [name]: newValue }));
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
-  const handleProfileSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const validateProfileForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (profileDraft.firstName) {
+      const firstNameError = validators.firstName(profileDraft.firstName);
+      if (firstNameError) errors.firstName = firstNameError;
+    }
+
+    if (profileDraft.lastName) {
+      const lastNameError = validators.lastName(profileDraft.lastName);
+      if (lastNameError) errors.lastName = lastNameError;
+    }
+
+    if (profileDraft.phone) {
+      const phoneError = validators.phone(profileDraft.phone);
+      if (phoneError) errors.phone = phoneError;
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setProfileForm(profileDraft);
-    setIsEditingProfile(false);
+    setUpdateError('');
+    setUpdateSuccess(false);
+
+    if (!validateProfileForm()) {
+      setUpdateError('Please fix all validation errors');
+      return;
+    }
+
+    try {
+      const updates: any = {
+        firstName: profileDraft.firstName || null,
+        lastName: profileDraft.lastName || null,
+        phone: profileDraft.phone || null,
+        marketingOptIn: profileDraft.marketingOptIn,
+      };
+
+      if (profileDraft.gender) {
+        updates.gender = profileDraft.gender.toUpperCase();
+      }
+
+      if (profileDraft.dateOfBirth) {
+        updates.dateOfBirth = profileDraft.dateOfBirth;
+      }
+
+      const updatedProfile = await authService.updateProfile(updates);
+      setProfile(updatedProfile);
+      setIsEditingProfile(false);
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (err: any) {
+      setUpdateError(err.message || 'Failed to update profile');
+    }
   };
 
   const handleTabChange = (section: ProfileSection) => {
@@ -167,53 +252,112 @@ export function ProfileAddressPage() {
   };
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            <p className="mt-4 text-sm text-zinc-500">Loading profile...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center gap-3 rounded-xl border border-accent-red bg-accent-red-bg p-4 text-sm text-accent-red">
+          <AlertCircleIcon className="h-5 w-5 shrink-0" />
+          <p>{error}</p>
+        </div>
+      );
+    }
+
+    if (!profile) {
+      return null;
+    }
+
     switch (activeTab) {
       case "profile":
         return (
           <div className="space-y-5 text-sm text-primary-dark">
+            {updateSuccess && (
+              <div className="rounded-xl border border-primary bg-bg-secondary p-4 text-sm text-primary">
+                Profile updated successfully!
+              </div>
+            )}
+            {updateError && (
+              <div className="flex items-start gap-3 rounded-xl border border-accent-red bg-accent-red-bg p-4 text-sm text-accent-red">
+                <AlertCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                <p>{updateError}</p>
+              </div>
+            )}
             <form
               onSubmit={handleProfileSubmit}
               className="space-y-5"
             >
               <div className="grid gap-4 md:grid-cols-2">
-                <ProfileInput
-                  ref={firstNameInputRef}
-                  label="First Name"
-                  name="firstName"
-                  value={profileDraft.firstName}
-                  onChange={handleProfileChange}
-                  disabled={!isEditingProfile}
-                />
-                <ProfileInput
-                  label="Last Name"
-                  name="lastName"
-                  value={profileDraft.lastName}
-                  onChange={handleProfileChange}
-                  disabled={!isEditingProfile}
-                />
+                <div>
+                  <ProfileInput
+                    ref={firstNameInputRef}
+                    label="First Name"
+                    name="firstName"
+                    value={profileDraft.firstName}
+                    onChange={handleProfileChange}
+                    disabled={!isEditingProfile}
+                  />
+                  {validationErrors.firstName && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-accent-red">
+                      <AlertCircleIcon className="h-4 w-4 shrink-0" />
+                      <span>{validationErrors.firstName}</span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <ProfileInput
+                    label="Last Name"
+                    name="lastName"
+                    value={profileDraft.lastName}
+                    onChange={handleProfileChange}
+                    disabled={!isEditingProfile}
+                  />
+                  {validationErrors.lastName && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-accent-red">
+                      <AlertCircleIcon className="h-4 w-4 shrink-0" />
+                      <span>{validationErrors.lastName}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               <ProfileInput
                 label="Email"
                 name="email"
                 type="email"
-                value={profileDraft.email}
-                onChange={handleProfileChange}
-                disabled={!isEditingProfile}
+                value={profile.email}
+                onChange={() => {}}
+                disabled={true}
               />
-              <ProfileInput
-                label="Phone Number"
-                name="phone"
-                value={profileDraft.phone}
-                onChange={handleProfileChange}
-                disabled={!isEditingProfile}
-              />
+              <div>
+                <ProfileInput
+                  label="Phone Number"
+                  name="phone"
+                  value={profileDraft.phone}
+                  onChange={handleProfileChange}
+                  disabled={!isEditingProfile}
+                />
+                {validationErrors.phone && (
+                  <div className="mt-2 flex items-center gap-2 text-sm text-accent-red">
+                    <AlertCircleIcon className="h-4 w-4 shrink-0" />
+                    <span>{validationErrors.phone}</span>
+                  </div>
+                )}
+              </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-primary-lighter">
                     Gender
                   </p>
                   <div className="mt-3 flex flex-wrap gap-3">
-                    {["female", "male", "other"].map((option) => (
+                    {["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"].map((option) => (
                       <label
                         key={option}
                         className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold capitalize transition ${
@@ -231,20 +375,33 @@ export function ProfileAddressPage() {
                           disabled={!isEditingProfile}
                           className="text-primary"
                         />
-                        {option}
+                        {option === "PREFER_NOT_TO_SAY" ? "Prefer not to say" : option.toLowerCase()}
                       </label>
                     ))}
                   </div>
                 </div>
                 <ProfileInput
                   label="Date of Birth"
-                  name="dob"
+                  name="dateOfBirth"
                   type="date"
-                  value={profileDraft.dob}
+                  value={profileDraft.dateOfBirth}
                   onChange={handleProfileChange}
                   disabled={!isEditingProfile}
                 />
               </div>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  name="marketingOptIn"
+                  checked={profileDraft.marketingOptIn}
+                  onChange={handleProfileChange}
+                  disabled={!isEditingProfile}
+                  className="h-5 w-5 rounded border-border-primary text-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <span className="text-sm text-primary-dark">
+                  I want to receive marketing emails and promotional offers
+                </span>
+              </label>
             </form>
             <div className="flex justify-end gap-3">
               {isEditingProfile && (
@@ -344,29 +501,43 @@ export function ProfileAddressPage() {
       default:
         return (
           <div className="space-y-4">
-            {addresses.map((entry) => (
-              <article
-                key={entry.id}
-                className="flex flex-col gap-4 rounded-2xl border border-border-primary bg-bg-card p-4 sm:flex-row sm:items-start sm:justify-between"
-              >
+            {profile.defaultAddress ? (
+              <article className="flex flex-col gap-4 rounded-2xl border border-border-primary bg-bg-card p-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-base font-semibold text-primary-dark">
-                    {entry.name} <span className="text-zinc-400">|</span>{" "}
-                    <span className="text-primary-dark">{entry.phone}</span>{" "}
-                    <span className="text-zinc-400">|</span>{" "}
-                    <span className="font-normal text-primary">{entry.label}</span>
+                    {profile.firstName} {profile.lastName}{' '}
+                    {profile.defaultAddress.phone && (
+                      <>
+                        <span className="text-zinc-400">|</span>{' '}
+                        <span className="text-primary-dark">{profile.defaultAddress.phone}</span>
+                      </>
+                    )}
+                    {' '}
+                    <span className="text-zinc-400">|</span>{' '}
+                    <span className="font-normal text-primary">Default</span>
                   </p>
                   <div className="mt-2 space-y-1 text-sm text-zinc-500">
-                    {entry.lines.map((line, index) => (
-                      <p key={`${entry.id}-${index}`}>{line}</p>
-                    ))}
+                    <p>{profile.defaultAddress.line1}</p>
+                    {profile.defaultAddress.line2 && <p>{profile.defaultAddress.line2}</p>}
+                    <p>
+                      {profile.defaultAddress.city}, {profile.defaultAddress.state}{' '}
+                      {profile.defaultAddress.postalCode}
+                    </p>
+                    <p>{profile.defaultAddress.country}</p>
                   </div>
                 </div>
                 <button className="h-10 rounded-full border border-border-light px-6 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary">
                   Edit
                 </button>
               </article>
-            ))}
+            ) : (
+              <div className="rounded-2xl border border-border-primary bg-bg-card p-6 text-center text-sm text-zinc-500">
+                No address saved yet.{' '}
+                <button className="text-primary underline">
+                  Add your first address
+                </button>
+              </div>
+            )}
           </div>
         );
     }

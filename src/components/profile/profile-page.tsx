@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import { Footer } from "@/components/footer";
-import { useWishlistStore } from "@/store/wishlist-store";
+import { useWishlist } from "@/hooks/useWishlist";
 import { authService, ProfileResponse } from "@/lib/auth";
 import { validators } from "@/lib/validators";
 import { AlertCircleIcon } from "@/components/icons";
@@ -69,7 +69,7 @@ const orders = [
 export function ProfileAddressPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ProfileSection>("profile");
-  const wishlistProducts = useWishlistStore((state) => state.products);
+  const { items: wishlistItems } = useWishlist();
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [profileDraft, setProfileDraft] = useState({
     firstName: '',
@@ -476,7 +476,7 @@ export function ProfileAddressPage() {
           </div>
         );
       case "wishlist":
-        if (wishlistProducts.length === 0) {
+        if (wishlistItems.length === 0) {
           return (
             <div className="rounded-2xl border border-border-primary bg-bg-card p-6 text-center text-sm text-zinc-500">
               No wishlist items yet.{" "}
@@ -489,19 +489,30 @@ export function ProfileAddressPage() {
         }
         return (
           <div className="grid gap-4 md:grid-cols-2">
-            {wishlistProducts.map((product) => (
+            {wishlistItems.map((item) => (
               <article
-                key={product.slug}
+                key={item.uid}
                 className="rounded-2xl border border-border-primary bg-bg-card p-4 text-sm text-primary-dark"
               >
-                <p className="text-xs uppercase tracking-[0.3em] text-primary/70">
-                  {product.category}
-                </p>
-                <p className="mt-1 text-lg font-semibold">{product.name}</p>
-                <p className="mt-2 text-primary">₹{product.price}</p>
-                <button className="mt-4 w-full rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white">
-                  Add to Cart
-                </button>
+                <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-xl bg-[var(--color-bg-image)] mb-3">
+                  {item.product.images && item.product.images.length > 0 ? (
+                    <img
+                      src={item.product.images.find(img => img.isPrimary)?.url || item.product.images[0].url}
+                      alt={item.product.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs text-zinc-400">No image</span>
+                  )}
+                </div>
+                <p className="mt-1 text-lg font-semibold">{item.product.title}</p>
+                <p className="mt-2 text-primary">₹{(item.sku.priceCents / 100).toFixed(2)}</p>
+                <Link
+                  href={`/shop-now/${item.product.slug}`}
+                  className="mt-4 block w-full rounded-full border border-primary px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary hover:text-white"
+                >
+                  View Product
+                </Link>
               </article>
             ))}
           </div>

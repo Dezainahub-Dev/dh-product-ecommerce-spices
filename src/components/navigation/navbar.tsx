@@ -3,19 +3,21 @@
 import { SearchIcon, BagIcon, UserIcon, HeartIcon } from "@/components/icons";
 import { BrandLogo } from "@/components/navigation/logo";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { useWishlistStore } from "@/store/wishlist-store";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
 
 const navLinks = [
-  { label: "Home", href: "#", isActive: true },
-  { label: "Spices", href: "/shop-now" },
-  { label: "Nuts & Seeds", href: "#nuts" },
+  { label: "Home", href: "/" },
+  { label: "Spices", href: "/shop-now?category=spices" },
+  { label: "Nuts & Seeds", href: "/shop-now?category=nuts-seeds" },
   { label: "Contact Us", href: "#contact" },
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const cartItems = useCartStore((state) => state.items);
   const wishlistItems = useWishlistStore((state) => state.items);
   const { isAuthenticated, user, logout } = useAuth();
@@ -57,38 +59,38 @@ export function Navbar() {
 
           <nav className="flex items-center gap-2">
             {navLinks.map((link) => (
-              <NavLink key={link.label} {...link} />
+              <NavLink key={link.label} {...link} pathname={pathname} />
             ))}
           </nav>
         </div>
         <div className="flex items-center gap-5 text-zinc-500">
           <button
             type="button"
-            className="text-zinc-500 transition-colors hover:text-emerald-700"
+            className="text-zinc-500 transition-colors hover:text-[var(--color-primary)]"
             aria-label="Search"
           >
             <SearchIcon className="h-5 w-5" />
           </button>
           <Link
             href="/wishlist"
-            className="relative text-zinc-500 transition-colors hover:text-emerald-700"
+            className="relative text-zinc-500 transition-colors hover:text-[var(--color-primary)]"
             aria-label="Wishlist"
           >
             <HeartIcon className="h-5 w-5" />
             {wishlistItems.length > 0 && (
-              <span className="absolute -right-2 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#F97316] px-1 text-xs font-semibold text-white">
+              <span className="absolute -right-2 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--color-accent-orange)] px-1 text-xs font-semibold text-white">
                 {wishlistItems.length}
               </span>
             )}
           </Link>
           <Link
             href="/cart"
-            className="relative text-zinc-500 transition-colors hover:text-emerald-700"
+            className="relative text-zinc-500 transition-colors hover:text-[var(--color-primary)]"
             aria-label="Shopping cart"
           >
             <BagIcon className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -right-2 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#4D9C2C] px-1 text-xs font-semibold text-white">
+              <span className="absolute -right-2 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--color-primary)] px-1 text-xs font-semibold text-white">
                 {cartCount}
               </span>
             )}
@@ -100,38 +102,38 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-2 rounded-full border border-emerald-200 px-4 py-2 text-emerald-700 transition hover:border-emerald-400 hover:text-emerald-800"
+                className="flex items-center gap-2 rounded-full border border-[var(--color-border-light)] px-4 py-2 text-[var(--color-primary)] transition hover:border-[var(--color-primary-light)] hover:text-[var(--color-primary-dark)]"
               >
                 <UserIcon className="h-4 w-4" />
                 <span>{user?.firstName || 'Account'}</span>
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-border-primary bg-white shadow-lg">
-                  <div className="p-3 border-b border-border-primary">
-                    <p className="text-sm font-semibold text-primary-dark truncate">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-[--color-border-primary] bg-background shadow-lg">
+                  <div className="p-3 border-b border-[--color-border-primary]">
+                    <p className="text-sm font-semibold text-[--color-primary-dark] truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-zinc-500 truncate">{user?.email}</p>
+                    <p className="text-xs text-[--color-text-muted] truncate">{user?.email}</p>
                   </div>
                   <div className="p-2">
                     <Link
                       href="/profile"
                       onClick={() => setShowDropdown(false)}
-                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-primary-dark hover:bg-bg-secondary transition"
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[--color-primary-dark] hover:bg-[--color-bg-secondary] transition"
                     >
                       My Profile
                     </Link>
                     <Link
                       href="/wishlist"
                       onClick={() => setShowDropdown(false)}
-                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-primary-dark hover:bg-bg-secondary transition"
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[--color-primary-dark] hover:bg-[--color-bg-secondary] transition"
                     >
                       Wishlist
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-accent-red hover:bg-accent-red-bg transition"
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[--color-accent-red] hover:bg-[--color-accent-red-bg] transition"
                     >
                       Logout
                     </button>
@@ -142,7 +144,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-2 rounded-full border border-emerald-200 px-4 py-2 text-emerald-700 transition hover:border-emerald-400 hover:text-emerald-800"
+              className="flex items-center gap-2 rounded-full border border-[var(--color-border-light)] px-4 py-2 text-[var(--color-primary)] transition hover:border-[var(--color-primary-light)] hover:text-[var(--color-primary-dark)]"
             >
               <UserIcon className="h-4 w-4" />
               <span>Login</span>
@@ -157,18 +159,22 @@ export function Navbar() {
 type NavLinkProps = {
   label: string;
   href: string;
-  isActive?: boolean;
+  pathname: string;
 };
 
-function NavLink({ label, href, isActive }: NavLinkProps) {
+function NavLink({ label, href, pathname }: NavLinkProps) {
   const baseStyles =
     "rounded-full px-4 py-2 text-sm font-medium transition-colors";
+
+  // Determine if the link is active based on the current pathname
+  const isActive = pathname === href ||
+                   (href.startsWith('/shop-now') && pathname.startsWith('/shop-now'));
 
   if (isActive) {
     return (
       <Link
         href={href}
-        className={`${baseStyles} bg-emerald-50 text-emerald-700`}
+        className={`${baseStyles} bg-[var(--color-bg-secondary)] text-[var(--color-primary)]`}
       >
         {label}
       </Link>
@@ -178,7 +184,7 @@ function NavLink({ label, href, isActive }: NavLinkProps) {
   return (
     <Link
       href={href}
-      className={`${baseStyles} text-zinc-700 hover:text-emerald-700`}
+      className={`${baseStyles} text-zinc-700 hover:text-[var(--color-primary)]`}
     >
       {label}
     </Link>

@@ -3,12 +3,25 @@
 import { useState } from "react";
 import { useCartStore } from "@/store/cart-store";
 import { useWishlistStore } from "@/store/wishlist-store";
-import type { Product } from "@/data/products";
+import type { ProductDetail } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 
 type AddToCartPanelProps = {
   slug: string;
-  product: Product;
+  product: ProductDetail;
 };
+
+// Helper function to get SKU display name from attributes or skuCode
+function getSkuDisplayName(sku: ProductDetail['skus'][0]): string {
+  if (sku.attributes) {
+    // Try to find a "size" or "weight" attribute
+    const sizeAttr = sku.attributes['size'] || sku.attributes['weight'] || sku.attributes['variant'];
+    if (sizeAttr) {
+      return sizeAttr.value;
+    }
+  }
+  return sku.skuCode;
+}
 
 export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
   const addItem = useCartStore((state) => state.addItem);
@@ -17,15 +30,15 @@ export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
     state.items.includes(slug)
   );
   const [quantity, setQuantity] = useState(1);
-  const [selectedSKU, setSelectedSKU] = useState(product.skus[0]?.size || "50gm");
+  const [selectedSKUId, setSelectedSKUId] = useState(product.skus[0]?.uid || "");
 
-  const currentSKU = product.skus.find(sku => sku.size === selectedSKU) || product.skus[0];
+  const currentSKU = product.skus.find(sku => sku.uid === selectedSKUId) || product.skus[0];
 
-  const increment = () => setQuantity((prev) => prev + 1);
+  const increment = () => setQuantity((prev) => Math.min(prev + 1, currentSKU.availableQuantity));
   const decrement = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   const handleAdd = () => {
-    addItem(slug, quantity, selectedSKU);
+    addItem(slug, quantity, getSkuDisplayName(currentSKU));
     setQuantity(1);
   };
 
@@ -36,60 +49,65 @@ export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* SKU Selector */}
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">
-          Select Size
-        </p>
-        <div className="flex flex-wrap gap-3">
-          {product.skus.map((sku) => (
-            <button
-              key={sku.size}
-              type="button"
-              onClick={() => setSelectedSKU(sku.size)}
-              className={`rounded-full border px-5 py-2.5 text-sm font-semibold transition ${
-                selectedSKU === sku.size
-                  ? "border-primary bg-bg-secondary text-primary-dark"
-                  : "border-border-primary text-zinc-500 hover:border-border-light"
-              }`}
-            >
-              {sku.size}
-            </button>
-          ))}
+      {product.skus.length > 1 && (
+        <div>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-primary-lighter]">
+            Select Variant
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {product.skus.map((sku) => (
+              <button
+                key={sku.uid}
+                type="button"
+                onClick={() => setSelectedSKUId(sku.uid)}
+                disabled={!sku.inStock}
+                className={`rounded-full border px-5 py-2.5 text-sm font-semibold transition ${
+                  selectedSKUId === sku.uid
+                    ? "border-[--color-primary] bg-[--color-bg-secondary] text-[--color-primary-dark]"
+                    : sku.inStock
+                    ? "border-[--color-border-primary] text-zinc-500 hover:border-[--color-border-light]"
+                    : "border-[--color-border-primary] text-zinc-300 cursor-not-allowed"
+                }`}
+              >
+                {getSkuDisplayName(sku)}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Price Display */}
       <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-primary">
-          ₹{currentSKU.price.toFixed(2)}
+        <span className="text-2xl font-bold text-[--color-primary]">
+          {formatPrice(currentSKU.priceCents)}
         </span>
-        {currentSKU.oldPrice && (
+        {currentSKU.compareAtPriceCents && (
           <span className="text-lg text-zinc-400 line-through">
-            ₹{currentSKU.oldPrice.toFixed(2)}
+            {formatPrice(currentSKU.compareAtPriceCents)}
           </span>
         )}
-        {currentSKU.oldPrice && (
-          <span className="rounded-full bg-accent-red-bg px-2 py-0.5 text-xs font-semibold text-accent-red">
-            {Math.round(((currentSKU.oldPrice - currentSKU.price) / currentSKU.oldPrice) * 100)}% OFF
+        {currentSKU.compareAtPriceCents && (
+          <span className="rounded-full bg-[--color-accent-red-bg] px-2 py-0.5 text-xs font-semibold text-[--color-accent-red]">
+            {Math.round(((currentSKU.compareAtPriceCents - currentSKU.priceCents) / currentSKU.compareAtPriceCents) * 100)}% OFF
           </span>
         )}
       </div>
 
       {/* Stock Status */}
       <p className="text-sm text-zinc-500">
-        {currentSKU.stock > 0 ? (
-          <span className="text-primary">In Stock ({currentSKU.stock} available)</span>
+        {currentSKU.inStock && currentSKU.availableQuantity > 0 ? (
+          <span className="text-[--color-primary]">In Stock ({currentSKU.availableQuantity} available)</span>
         ) : (
           <span className="text-red-500">Out of Stock</span>
         )}
       </p>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-4 rounded-full border border-border-lighter px-4 py-3 text-base font-semibold text-primary-dark">
+        <div className="flex items-center gap-4 rounded-full border border-[--color-border-lighter] px-4 py-3 text-base font-semibold text-[--color-primary-dark]">
           <button
             type="button"
             onClick={decrement}
-            className="text-2xl leading-none text-primary"
+            className="text-2xl leading-none text-[--color-primary]"
           >
             -
           </button>
@@ -97,27 +115,30 @@ export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
           <button
             type="button"
             onClick={increment}
-            className="text-2xl leading-none text-primary"
+            disabled={quantity >= currentSKU.availableQuantity}
+            className="text-2xl leading-none text-[--color-primary] disabled:opacity-50"
           >
             +
           </button>
-          <span className="ml-3 rounded-full border border-primary/20 px-3 py-1 text-xs font-semibold text-primary">
-            Limited Offer
-          </span>
+          {currentSKU.compareAtPriceCents && (
+            <span className="ml-3 rounded-full border border-[--color-primary]/20 px-3 py-1 text-xs font-semibold text-[--color-primary]">
+              Limited Offer
+            </span>
+          )}
         </div>
         <button
           onClick={handleAdd}
-          disabled={currentSKU.stock === 0}
-          className="flex-1 rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_35px_rgba(77,156,44,0.25)] transition hover:bg-primary-darker disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!currentSKU.inStock || currentSKU.availableQuantity === 0}
+          className="flex-1 rounded-full bg-[--color-primary] px-6 py-3 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_35px_rgba(77,156,44,0.25)] transition hover:bg-[--color-primary-darker] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Add to Cart
         </button>
         <button
           onClick={handleWishlist}
-          className={`flex-1 rounded-full border border-border-lighter px-6 py-3 text-base font-semibold uppercase tracking-wide transition ${
+          className={`flex-1 rounded-full border border-[--color-border-lighter] px-6 py-3 text-base font-semibold uppercase tracking-wide transition ${
             wishlisted
-              ? "border-primary text-primary bg-bg-primary"
-              : "text-primary hover:bg-bg-primary"
+              ? "border-[--color-primary] text-[--color-primary] bg-[--color-bg-primary]"
+              : "text-[--color-primary] hover:bg-[--color-bg-primary]"
           }`}
         >
           {wishlisted ? "Wishlisted" : "Add to Wishlist"}

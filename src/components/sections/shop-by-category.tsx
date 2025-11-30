@@ -8,9 +8,9 @@ const tabs = ["Spices", "Nuts & Seeds"];
 
 export function ShopByCategorySection() {
   return (
-    <section className="bg-[#F3F9ED] py-20 text-center text-emerald-950">
+    <section className="bg-[var(--color-bg-primary)] py-20 text-center text-emerald-950">
       <div className="mx-auto max-w-[1368px] px-6">
-        <h2 className="text-4xl font-semibold text-[#355B20]">
+        <h2 className="text-4xl font-semibold text-[var(--color-text-dark)]">
           Shop By Category
         </h2>
         <div className="mt-6 flex items-center justify-center gap-4">
@@ -19,8 +19,8 @@ export function ShopByCategorySection() {
               key={tab}
               className={`rounded-full border px-6 py-2 text-sm font-semibold transition ${
                 index === 0
-                  ? "border-[#4D9C2C] bg-[#4D9C2C] text-white"
-                  : "border-[#B9D6AA] bg-white text-[#4D9C2C]"
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
+                  : "border-[var(--color-primary-lighter)] bg-white text-[var(--color-primary)]"
               }`}
             >
               {tab}
@@ -32,7 +32,7 @@ export function ShopByCategorySection() {
           {categories.map((category) => (
             <article
               key={category.name}
-              className="flex h-[280px] flex-col justify-between rounded-3xl bg-gradient-to-b from-[#78B543] to-[#1D3B1A] p-8 text-left text-white"
+              className="flex h-[280px] flex-col justify-between rounded-3xl bg-gradient-to-b from-[var(--color-primary-light)] to-[var(--color-primary-dark)] p-8 text-left text-white"
             >
               <div>
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-white">

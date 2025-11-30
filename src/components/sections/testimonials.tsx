@@ -26,7 +26,7 @@ export function TestimonialsSection() {
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-900/70">
           Testimonials
         </p>
-        <h2 className="mt-3 text-4xl font-semibold text-[#355B20]">
+        <h2 className="mt-3 text-4xl font-semibold text-[var(--color-text-dark)]">
           What our customers say?
         </h2>
 
@@ -52,7 +52,7 @@ export function TestimonialsSection() {
                 {testimonial.quote}
               </p>
               <div className="mt-8 flex items-center gap-4">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#CEE5C2] text-lg font-semibold text-[#355B20]">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-bg-secondary)] text-lg font-semibold text-[var(--color-text-dark)]">
                   {testimonial.name.charAt(0)}
                 </div>
                 <div>
@@ -65,7 +65,7 @@ export function TestimonialsSection() {
         </div>
 
         <div className="relative mx-auto mt-12 h-1 w-full max-w-[420px] rounded-full bg-emerald-100">
-          <div className="absolute left-0 top-0 h-full w-1/3 rounded-full bg-[#4D9C2C]" />
+          <div className="absolute left-0 top-0 h-full w-1/3 rounded-full bg-[var(--color-primary)]" />
         </div>
       </div>
     </section>

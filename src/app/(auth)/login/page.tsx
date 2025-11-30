@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,7 +8,7 @@ import { validators } from '@/lib/validators';
 import { MailIcon, LockIcon, EyeIcon, EyeOffIcon, AlertCircleIcon } from '@/components/icons';
 import { Footer } from '@/components/footer';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isAuthenticated } = useAuth();
@@ -102,31 +102,31 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-background">
       <section className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1240px] items-center gap-16 px-6 py-16 lg:grid-cols-2">
         <div className="max-w-md">
-          <div className="mb-2 inline-block rounded-full bg-bg-secondary px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
+          <div className="mb-2 inline-block rounded-full bg-[--color-bg-secondary] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-[--color-primary]">
             Welcome Back
           </div>
-          <h1 className="mt-4 text-4xl font-semibold leading-tight text-zinc-900 sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
             Login to Your{' '}
-            <span className="text-primary">Account</span>
+            <span className="text-[--color-primary]">Account</span>
           </h1>
-          <p className="mt-4 text-lg leading-relaxed text-zinc-500">
+          <p className="mt-4 text-lg leading-relaxed text-[--color-text-muted]">
             Access your profile, orders, and exclusive offers. New to our store?{' '}
-            <Link href="/signup" className="font-semibold text-primary hover:underline">
+            <Link href="/signup" className="font-semibold text-[--color-primary] hover:underline">
               Create an account
             </Link>
           </p>
 
-          <ul className="mt-8 space-y-3 text-sm font-medium text-zinc-600">
+          <ul className="mt-8 space-y-3 text-sm font-medium text-[--color-text-muted]">
             {[
               'Track your orders in real-time',
               'Save your favorite products',
               'Exclusive member discounts',
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
-                <span className="h-2 w-2 rounded-full bg-primary" />
+                <span className="h-2 w-2 rounded-full bg-[--color-primary]" />
                 {item}
               </li>
             ))}
@@ -134,14 +134,14 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full max-w-md justify-self-center lg:justify-self-end">
-          <div className="rounded-3xl border border-border-primary bg-white p-8 shadow-[0_10px_40px_rgba(77,156,44,0.08)]">
-            <h2 className="text-2xl font-semibold text-primary-dark">Sign In</h2>
-            <p className="mt-2 text-sm text-zinc-500">
+          <div className="rounded-3xl border border-[--color-border-primary] bg-background p-8 shadow-[0_10px_40px_rgba(77,156,44,0.08)]">
+            <h2 className="text-2xl font-semibold text-[--color-primary-dark]">Sign In</h2>
+            <p className="mt-2 text-sm text-[--color-text-muted]">
               Enter your credentials to access your account
             </p>
 
             {submitError && (
-              <div className="mt-6 flex items-start gap-3 rounded-xl border border-accent-red bg-accent-red-bg p-4 text-sm text-accent-red">
+              <div className="mt-6 flex items-start gap-3 rounded-xl border border-[--color-accent-red] bg-[--color-accent-red-bg] p-4 text-sm text-[--color-accent-red]">
                 <AlertCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
                 <p>{submitError}</p>
               </div>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <div>
                 <label className="block">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-primary-lighter]">
                     <MailIcon className="h-4 w-4" />
                     <span>Email Address</span>
                   </div>
@@ -161,10 +161,10 @@ export default function LoginPage() {
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
                       onBlur={() => handleBlur('email')}
-                      className={`w-full rounded-xl border bg-white px-4 py-3 text-base font-medium text-primary-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                      className={`w-full rounded-xl border bg-background px-4 py-3 text-base font-medium text-[--color-primary-dark] outline-none transition focus:border-[--color-primary] focus:ring-2 focus:ring-[--color-primary]/20 ${
                         touched.email && errors.email
-                          ? 'border-accent-red'
-                          : 'border-border-primary'
+                          ? 'border-[--color-accent-red]'
+                          : 'border-[--color-border-primary]'
                       }`}
                       placeholder="your.email@example.com"
                       autoComplete="email"
@@ -172,7 +172,7 @@ export default function LoginPage() {
                   </div>
                 </label>
                 {touched.email && errors.email && (
-                  <div className="mt-2 flex items-center gap-2 text-sm text-accent-red">
+                  <div className="mt-2 flex items-center gap-2 text-sm text-[--color-accent-red]">
                     <AlertCircleIcon className="h-4 w-4 shrink-0" />
                     <span>{errors.email}</span>
                   </div>
@@ -182,13 +182,13 @@ export default function LoginPage() {
               <div>
                 <label className="block">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-primary-lighter]">
                       <LockIcon className="h-4 w-4" />
                       <span>Password</span>
                     </div>
                     <Link
                       href="/forgot-password"
-                      className="text-xs font-semibold text-primary hover:underline"
+                      className="text-xs font-semibold text-[--color-primary] hover:underline"
                     >
                       Forgot?
                     </Link>
@@ -200,10 +200,10 @@ export default function LoginPage() {
                       value={formData.password}
                       onChange={(e) => handleChange('password', e.target.value)}
                       onBlur={() => handleBlur('password')}
-                      className={`w-full rounded-xl border bg-white px-4 py-3 pr-12 text-base font-medium text-primary-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                      className={`w-full rounded-xl border bg-background px-4 py-3 pr-12 text-base font-medium text-[--color-primary-dark] outline-none transition focus:border-[--color-primary] focus:ring-2 focus:ring-[--color-primary]/20 ${
                         touched.password && errors.password
-                          ? 'border-accent-red'
-                          : 'border-border-primary'
+                          ? 'border-[--color-accent-red]'
+                          : 'border-[--color-border-primary]'
                       }`}
                       placeholder="Enter your password"
                       autoComplete="current-password"
@@ -211,7 +211,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 transition hover:text-primary-dark"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[--color-text-muted] transition hover:text-[--color-primary-dark]"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
@@ -223,7 +223,7 @@ export default function LoginPage() {
                   </div>
                 </label>
                 {touched.password && errors.password && (
-                  <div className="mt-2 flex items-center gap-2 text-sm text-accent-red">
+                  <div className="mt-2 flex items-center gap-2 text-sm text-[--color-accent-red]">
                     <AlertCircleIcon className="h-4 w-4 shrink-0" />
                     <span>{errors.password}</span>
                   </div>
@@ -233,25 +233,25 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full rounded-xl bg-primary px-8 py-3.5 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_45px_rgba(77,156,44,0.35)] transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-[--color-primary] px-8 py-3.5 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_45px_rgba(77,156,44,0.35)] transition hover:bg-[--color-primary-dark] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
 
-            <div className="mt-8 text-center text-sm text-zinc-500">
+            <div className="mt-8 text-center text-sm text-[--color-text-muted]">
               Don't have an account?{' '}
-              <Link href="/signup" className="font-semibold text-primary hover:underline">
+              <Link href="/signup" className="font-semibold text-[--color-primary] hover:underline">
                 Sign up for free
               </Link>
             </div>
 
             <div className="relative mt-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border-primary"></div>
+                <div className="w-full border-t border-[--color-border-primary]"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-4 text-zinc-400 tracking-[0.2em]">
+                <span className="bg-background px-4 text-[--color-text-muted] tracking-[0.2em]">
                   Or continue with
                 </span>
               </div>
@@ -266,7 +266,7 @@ export default function LoginPage() {
                 <a
                   key={provider.name}
                   href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${provider.href}`}
-                  className="flex items-center justify-center rounded-xl border border-border-primary bg-white px-4 py-3 text-sm font-semibold text-primary-dark transition hover:border-primary hover:bg-bg-secondary"
+                  className="flex items-center justify-center rounded-xl border border-[--color-border-primary] bg-background px-4 py-3 text-sm font-semibold text-[--color-primary-dark] transition hover:border-[--color-primary] hover:bg-[--color-bg-secondary]"
                 >
                   {provider.name}
                 </a>
@@ -277,5 +277,17 @@ export default function LoginPage() {
       </section>
       <Footer />
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="bg-background text-foreground min-h-screen flex items-center justify-center">
+        <p className="text-zinc-500">Loading...</p>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

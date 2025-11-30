@@ -239,7 +239,16 @@ export function ProfileAddressPage() {
     setActiveTab(section);
     if (section !== "profile") {
       setIsEditingProfile(false);
-      setProfileDraft({ ...profileForm });
+      if (profile) {
+        setProfileDraft({
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || '',
+          phone: profile.phone || '',
+          gender: profile.gender || '',
+          dateOfBirth: profile.dateOfBirth || '',
+          marketingOptIn: profile.marketingOptIn || false,
+        });
+      }
     }
   };
 

@@ -14,7 +14,7 @@ export function GlowRevolutionCTA() {
             early access to new products. Sign up now &amp; get 10% off your first
             purchase.
           </p>
-          <button className="mt-8 inline-flex items-center justify-center gap-3 rounded-full bg-[#4D9C2C] px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_15px_35px_rgba(77,156,44,0.5)] transition hover:bg-[#3A7A22]">
+          <button className="mt-8 inline-flex items-center justify-center gap-3 rounded-full bg-[var(--color-primary)] px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_15px_35px_rgba(103,39,27,0.5)] transition hover:bg-[var(--color-primary-dark)]">
             Shop Now
             <span aria-hidden="true">➜</span>
           </button>

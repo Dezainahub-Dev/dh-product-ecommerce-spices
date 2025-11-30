@@ -35,7 +35,7 @@ export default function Home() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <button className="inline-flex items-center justify-center rounded-xl bg-[#4D9C2C] px-8 py-3 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_45px_rgba(77,156,44,0.35)] transition hover:bg-[#337518]">
+            <button className="inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] px-8 py-3 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_45px_rgba(103,39,27,0.35)] transition hover:bg-[var(--color-primary-dark)]">
               Shop Now
             </button>
             

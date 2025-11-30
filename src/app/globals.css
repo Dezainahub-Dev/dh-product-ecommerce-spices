@@ -4,26 +4,26 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Brand Colors */
-  --primary: #4D9C2C;
-  --primary-dark: #355B20;
-  --primary-darker: #36701F;
-  --primary-light: #A4C769;
-  --primary-lighter: #A1B293;
+ /* Brand Colors */
+  --primary: #67271B;
+  --primary-dark: #55241B;
+  --primary-darker: #5F251B;
+  --primary-light: #8D3625;
+  --primary-lighter: #8F4A3D;
 
   /* Background Colors */
-  --bg-primary: #F8FCF2;
-  --bg-secondary: #F6FCEA;
-  --bg-tertiary: #FBFEF7;
-  --bg-card: #FDFEFE;
-  --bg-image: #F4F6F1;
+  --bg-primary: #FCF3F2;
+  --bg-secondary: #FCEDEA;
+  --bg-tertiary: #FEF8F7;
+  --bg-card: #FEFDFD;
+  --bg-image: #F6F2F1;
 
   /* Border Colors */
-  --border-primary: #E6EEDF;
+  --border-primary: #EEE1DF;
   --border-secondary: #E5EED5;
-  --border-light: #D6E9C6;
-  --border-lighter: #DDE8CC;
-  --border-lightest: #E4F5D7;
+  --border-light: #EED9D5;
+  --border-lighter: #E8D0CC;
+  --border-lightest: #F5DBD7;
 
   /* Accent Colors */
   --accent-yellow: #F5A524;
@@ -34,12 +34,12 @@
   --accent-red-heart: #E24B4A;
 
   /* Stock Progress */
-  --progress-bg: #E8EFE0;
+  --progress-bg: #EFE2E0;
 
   /* Text Shades */
-  --text-dark: #355B20;
-  --text-medium: #3A5D22;
-  --text-muted: #6C7D5A;
+  --text-dark: #5B2920;
+  --text-medium: #5D2B22;
+  --text-muted: #7D5F5A;
 }
 
 @theme inline {

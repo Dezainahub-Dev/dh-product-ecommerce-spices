@@ -56,27 +56,27 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#F4F8ED] text-[#355B20]">
+    <footer className="bg-[var(--color-bg-primary)] text-[var(--color-text-dark)]">
       <div className="mx-auto grid max-w-[1368px] gap-12 px-6 py-16 lg:grid-cols-[1.2fr_repeat(2,1fr)_1.4fr]">
         <div>
-          <div className="text-3xl font-semibold tracking-wide text-[#4D9C2C]">
+          <div className="text-3xl font-semibold tracking-wide text-[var(--color-primary)]">
             Avanora
           </div>
           <p className="mt-4 text-sm leading-relaxed text-zinc-600">
             Consumer Complaints Service, Directorate General of Consumer Protection
             and Trade Order, Ministry of Trade of the Republic of Indonesia.
           </p>
-          <p className="mt-6 text-base font-semibold text-[#4D9C2C]">
+          <p className="mt-6 text-base font-semibold text-[var(--color-primary)]">
             +12 345 678 910 <span className="font-normal text-zinc-500">(WhatsApp)</span>
           </p>
         </div>
 
         {footerLinks.map((group) => (
           <div key={group.title}>
-            <p className="text-lg font-semibold text-[#355B20]">{group.title}</p>
-            <ul className="mt-4 space-y-2 text-base text-[#4D9C2C]">
+            <p className="text-lg font-semibold text-[var(--color-text-dark)]">{group.title}</p>
+            <ul className="mt-4 space-y-2 text-base text-[var(--color-primary)]">
               {group.links.map((link) => (
-                <li key={link} className="transition hover:text-[#337518]">
+                <li key={link} className="transition hover:text-[var(--color-primary-dark)]">
                   {link}
                 </li>
               ))}
@@ -85,12 +85,12 @@ export function Footer() {
         ))}
 
         <div>
-          <p className="text-lg font-semibold text-[#355B20]">Follow Us</p>
+          <p className="text-lg font-semibold text-[var(--color-text-dark)]">Follow Us</p>
           <div className="mt-4 flex items-center gap-4">
             {socialIcons.map((icon) => (
               <span
                 key={icon.label}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A8D08D] text-[#4D9C2C]"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-primary-lighter)] text-[var(--color-primary)]"
                 aria-label={icon.label}
               >
                 <svg
@@ -109,12 +109,12 @@ export function Footer() {
           </div>
           <p className="mt-6 text-sm text-zinc-600">
             Learn more about Avanora culture at{" "}
-            <span className="font-semibold text-[#4D9C2C]">avanora.com</span>
+            <span className="font-semibold text-[var(--color-primary)]">avanora.com</span>
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 bg-[#0F230D] px-6 py-6 text-sm text-white md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 bg-[var(--color-primary-dark)] px-6 py-6 text-sm text-white md:flex-row md:items-center md:justify-between">
         <p>Copyright © 2025 AVANORA BEAUTY. All rights reserved</p>
         <p className="text-white/60">Brought to you by Dezainahub</p>
       </div>

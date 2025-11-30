@@ -36,7 +36,7 @@ export function BestSellersSection() {
     <section className="bg-white py-20 text-zinc-900">
       <div className="mx-auto max-w-[1368px] px-6 text-center">
         
-        <h2 className="mt-4 text-4xl font-semibold text-[#355B20]">
+        <h2 className="mt-4 text-4xl font-semibold text-[var(--color-text-dark)]">
           Best Sellers
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-base text-zinc-500">
@@ -80,7 +80,7 @@ export function BestSellersSection() {
                 <h3 className="text-base font-semibold text-zinc-900">
                   {product.name}
                 </h3>
-                <div className="mt-4 flex items-baseline gap-2 text-xl font-semibold text-[#4D9C2C]">
+                <div className="mt-4 flex items-baseline gap-2 text-xl font-semibold text-[var(--color-primary)]">
                   ₹{product.price}
                   {product.oldPrice && (
                     <span className="text-base font-normal text-zinc-400 line-through">

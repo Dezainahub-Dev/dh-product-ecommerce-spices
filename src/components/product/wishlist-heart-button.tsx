@@ -31,8 +31,8 @@ export function WishlistHeartButton({ slug }: WishlistHeartButtonProps) {
       disabled={isPending}
       className={`absolute right-4 top-4 inline-flex h-12 w-12 items-center justify-center rounded-full border bg-white/90 shadow transition ${
         active
-          ? "border-[#4D9C2C] text-[#E24B4A]"
-          : "border-white text-zinc-400 hover:text-[#355B20]"
+          ? "border-[var(--color-primary)] text-[var(--color-accent-red-heart)]"
+          : "border-white text-zinc-400 hover:text-[var(--color-text-dark)]"
       } ${isPending ? "opacity-70" : ""}`}
     >
       <svg

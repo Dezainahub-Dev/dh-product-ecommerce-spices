@@ -26,20 +26,20 @@ export default function WishlistPage() {
     <main className="bg-white text-zinc-900">
       <section className="mx-auto max-w-[1300px] px-6 py-10">
         <nav className="text-sm text-zinc-500">
-          <Link href="/" className="text-[#4D9C2C] hover:underline">
+          <Link href="/" className="text-[var(--color-primary)] hover:underline">
             Home
           </Link>{" "}
           <span className="mx-2 text-zinc-400">/</span>
           <span className="font-medium text-zinc-700">Wishlist</span>
         </nav>
 
-        <div className="mt-6 rounded-3xl border border-[#E6EEDF] bg-white p-6">
+        <div className="mt-6 rounded-3xl border border-[var(--color-border-primary)] bg-white p-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-[#355B20]">
+            <h1 className="text-2xl font-semibold text-[var(--color-text-dark)]">
               Wishlist ({products.length})
             </h1>
             {products.length > 0 && (
-              <Link href="/shop-now" className="text-sm font-semibold text-[#4D9C2C]">
+              <Link href="/shop-now" className="text-sm font-semibold text-[var(--color-primary)]">
                 Continue Shopping
               </Link>
             )}
@@ -49,7 +49,7 @@ export default function WishlistPage() {
             {products.length === 0 && (
               <p className="text-zinc-500">
                 No favorites yet.{" "}
-                <Link href="/shop-now" className="text-[#4D9C2C] underline">
+                <Link href="/shop-now" className="text-[var(--color-primary)] underline">
                   Browse products
                 </Link>{" "}
                 to add them to your wishlist.
@@ -59,24 +59,24 @@ export default function WishlistPage() {
             {products.map((product) => (
               <article
                 key={product.slug}
-                className="flex flex-col rounded-3xl border border-[#E6EEDF] bg-[#FDFEFE] p-5 shadow-sm"
+                className="flex flex-col rounded-3xl border border-[var(--color-border-primary)] bg-[var(--color-bg-card)] p-5 shadow-sm"
               >
                 <div className="flex flex-col gap-4 sm:flex-row">
-                  <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-[#F4F6F1]">
+                  <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-[var(--color-bg-image)]">
                     <PlaceholderThumb />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs uppercase tracking-[0.2em] text-[#4D9C2C]/80">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)]/80">
                       {product.category}
                     </p>
                     <Link
                       href={`/shop-now/${product.slug}`}
-                      className="text-lg font-semibold text-[#355B20]"
+                      className="text-lg font-semibold text-[var(--color-text-dark)]"
                     >
                       {product.name}
                     </Link>
                     <p className="mt-2 text-sm text-zinc-500">{product.shortDescription}</p>
-                    <div className="mt-3 text-lg font-semibold text-[#4D9C2C]">
+                    <div className="mt-3 text-lg font-semibold text-[var(--color-primary)]">
                       {formatINR(product.price)}
                       {product.oldPrice && (
                         <span className="ml-3 text-sm font-normal text-zinc-400 line-through">
@@ -89,13 +89,13 @@ export default function WishlistPage() {
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <button
                     onClick={() => handleAddToCart(product.slug)}
-                    className="inline-flex flex-1 items-center justify-center rounded-full bg-[#4D9C2C] px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_10px_20px_rgba(77,156,44,0.3)] transition hover:bg-[#356F1D]"
+                    className="inline-flex flex-1 items-center justify-center rounded-full bg-[var(--color-primary)] px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_10px_20px_rgba(103,39,27,0.3)] transition hover:bg-[var(--color-primary-darker)]"
                   >
                     Add to Cart
                   </button>
                   <button
                     onClick={() => removeItem(product.slug)}
-                    className="rounded-full border border-[#E6EEDF] px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-[#4D9C2C]"
+                    className="rounded-full border border-[var(--color-border-primary)] px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]"
                   >
                     Remove
                   </button>

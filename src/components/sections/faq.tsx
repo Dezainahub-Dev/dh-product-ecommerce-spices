@@ -37,7 +37,7 @@ export function FAQSection() {
     setOpenIndex((prev) => (prev === index ? -1 : index));
 
   return (
-    <section className="bg-white px-6 py-24 text-[#355B20]">
+    <section className="bg-white px-6 py-24 text-[var(--color-text-dark)]">
       <div className="mx-auto max-w-[920px] text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-900/70">
           FAQ

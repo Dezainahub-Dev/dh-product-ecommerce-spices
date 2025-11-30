@@ -32,7 +32,7 @@ export function NewArrivalsSection() {
     <section className="bg-white text-zinc-900">
       <div className="mx-auto max-w-[1368px] px-6 py-20 text-center">
        
-        <h2 className="mt-4 text-4xl font-semibold text-[#4D9C2C]">
+        <h2 className="mt-4 text-4xl font-semibold text-[var(--color-primary)]">
           New Arrivals
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-base text-zinc-500">
@@ -82,7 +82,7 @@ export function NewArrivalsSection() {
                     {product.name}
                   </h3>
                 </div>
-                <p className="mt-4 text-xl font-semibold text-[#4D9C2C]">
+                <p className="mt-4 text-xl font-semibold text-[var(--color-primary)]">
                   ₹{product.price}
                 </p>
               </div>

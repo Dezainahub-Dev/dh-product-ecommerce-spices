@@ -8,7 +8,7 @@ const tabs = ["Spices", "Nuts & Seeds"];
 
 export function ShopByCategorySection() {
   return (
-    <section className="bg-[var(--color-bg-primary)] py-20 text-center text-emerald-950">
+    <section className="bg-[var(--color-bg-primary)] py-20 text-center text-[var(--color-text-dark)]">
       <div className="mx-auto max-w-[1368px] px-6">
         <h2 className="text-4xl font-semibold text-[var(--color-text-dark)]">
           Shop By Category

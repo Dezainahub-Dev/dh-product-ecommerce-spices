@@ -3,8 +3,8 @@ export function GlowRevolutionCTA() {
     <section className="bg-black px-6 py-24 text-white">
       <div className="mx-auto flex max-w-[1368px] flex-col items-center gap-12 rounded-[42px] border border-zinc-900 bg-black/60 px-10 py-16 lg:flex-row lg:gap-16">
         <div className="w-full lg:w-2/3">
-          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-[#6EE56C]">
-            Avanora
+          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-[var(--color-primary-light)]">
+            KANKI
           </p>
           <h2 className="mt-4 text-4xl font-semibold leading-tight">
             Join the Glow Revolution!

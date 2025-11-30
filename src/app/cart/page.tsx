@@ -7,11 +7,13 @@ import { Footer } from "@/components/footer";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCartPrice } from "@/lib/cart";
+import { useToastStore } from "@/components/toast-notification";
 
 export default function CartPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { cart, loading, updateQuantity, removeItem, applyCoupon, removeCoupon } = useCart();
+  const { addToast } = useToastStore();
   const [couponCode, setCouponCode] = useState("");
   const [couponProcessing, setCouponProcessing] = useState(false);
 
@@ -227,13 +229,13 @@ export default function CartPage() {
                         try {
                           const result = await applyCoupon(couponCode);
                           if (result.success) {
-                            alert('Coupon applied successfully!');
+                            addToast('Coupon applied successfully!', 'success');
                             setCouponCode('');
                           } else {
-                            alert(result.message);
+                            addToast(result.message, 'error');
                           }
                         } catch (error: any) {
-                          alert(error.message || 'Failed to apply coupon');
+                          addToast(error.message || 'Failed to apply coupon', 'error');
                         } finally {
                           setCouponProcessing(false);
                         }

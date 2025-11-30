@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AvaNora Organics",
+  title: "KANKI Organics",
   description: "Premium organic spices, nuts, and seeds.",
 };
 

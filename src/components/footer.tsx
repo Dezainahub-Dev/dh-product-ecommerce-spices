@@ -50,7 +50,7 @@ const footerLinks = [
   },
   {
     title: "Contact Us",
-    links: ["cs@avanora.com", "Business Opportunity", "AVANORA Store", "Careers"],
+    links: ["cs@kanki.com", "Business Opportunity", "KANKI Store", "Careers"],
   },
 ];
 
@@ -60,7 +60,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-[1368px] gap-12 px-6 py-16 lg:grid-cols-[1.2fr_repeat(2,1fr)_1.4fr]">
         <div>
           <div className="text-3xl font-semibold tracking-wide text-[var(--color-primary)]">
-            Avanora
+            KANKI
           </div>
           <p className="mt-4 text-sm leading-relaxed text-zinc-600">
             Consumer Complaints Service, Directorate General of Consumer Protection
@@ -108,14 +108,14 @@ export function Footer() {
             ))}
           </div>
           <p className="mt-6 text-sm text-zinc-600">
-            Learn more about Avanora culture at{" "}
-            <span className="font-semibold text-[var(--color-primary)]">avanora.com</span>
+            Learn more about KANKI culture at{" "}
+            <span className="font-semibold text-[var(--color-primary)]">kanki.com</span>
           </p>
         </div>
       </div>
 
       <div className="flex flex-col gap-3 bg-[var(--color-primary-dark)] px-6 py-6 text-sm text-white md:flex-row md:items-center md:justify-between">
-        <p>Copyright © 2025 AVANORA BEAUTY. All rights reserved</p>
+        <p>Copyright © 2025 KANKI. All rights reserved</p>
         <p className="text-white/60">Brought to you by Dezainahub</p>
       </div>
     </footer>

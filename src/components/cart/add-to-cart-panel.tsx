@@ -5,6 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginRequiredModal } from "@/components/modals/login-required-modal";
+import { useToastStore } from "@/components/toast-notification";
 import type { ProductDetail } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
 
@@ -29,6 +30,7 @@ export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
   const { isAuthenticated } = useAuth();
   const { addItem: addToCart } = useCart();
   const { items, addToWishlist, removeFromWishlist } = useWishlist();
+  const { addToast } = useToastStore();
   const [quantity, setQuantity] = useState(1);
   const [selectedSKUId, setSelectedSKUId] = useState(product.skus[0]?.uid || "");
   const [wishlistProcessing, setWishlistProcessing] = useState(false);
@@ -59,11 +61,11 @@ export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
         quantity,
         attributes: currentSKU.attributes || {},
       });
-      alert(`Added ${quantity} item(s) to cart!`);
+      addToast('Added to cart', 'success');
       setQuantity(1);
     } catch (error: any) {
       console.error('Failed to add to cart:', error);
-      alert(error.message || 'Failed to add item to cart');
+      addToast(error.message || 'Failed to add item to cart', 'error');
     } finally {
       setCartProcessing(false);
     }

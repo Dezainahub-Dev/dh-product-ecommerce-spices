@@ -39,7 +39,7 @@ export function FAQSection() {
   return (
     <section className="bg-white px-6 py-24 text-[var(--color-text-dark)]">
       <div className="mx-auto max-w-[920px] text-center">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-900/70">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--color-text-medium)]">
           FAQ
         </p>
         <h2 className="mt-4 text-4xl font-semibold">Frequently Asked Questions</h2>

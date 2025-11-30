@@ -9,10 +9,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { productService } from "@/lib/products";
 import { WishlistHeartButton } from "@/components/product/wishlist-heart-button";
 import { LoginRequiredModal } from "@/components/modals/login-required-modal";
+import { useToastStore } from "@/components/toast-notification";
 
 export function ShopProductCard({ product }: { product: ProductListItem }) {
   const { isAuthenticated } = useAuth();
   const { addItem: addToCart } = useCart();
+  const { addToast } = useToastStore();
   const [isAdding, setIsAdding] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -34,7 +36,7 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
       const targetSku = firstInStockSku || skus[0];
 
       if (!targetSku) {
-        alert('No SKU available for this product');
+        addToast('No SKU available for this product', 'error');
         return;
       }
 
@@ -44,11 +46,11 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
         quantity: 1,
         attributes: targetSku.attributes || {},
       });
-      alert('Added to cart!');
+      addToast('Added to cart', 'success');
     } catch (error: any) {
       console.error('Failed to add to cart:', error);
-      alert(error.message || 'Failed to add to cart');
-    } finally {
+      addToast(error.message || 'Failed to add to cart', 'error');
+    } finally{
       setIsAdding(false);
     }
   };

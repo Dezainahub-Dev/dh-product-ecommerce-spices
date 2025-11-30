@@ -2,25 +2,25 @@ import Image from "next/image";
 
 const products = [
   {
-    name: "Facial Cleanser Avanora Your Skin Bae Kojic Acid 100ml",
+    name: "Facial Cleanser KANKI Your Skin Bae Kojic Acid 100ml",
     price: 399,
     image:
       "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Moisturizer Avanora Your Skin Bae Multi Herbs 15ml",
+    name: "Moisturizer KANKI Your Skin Bae Multi Herbs 15ml",
     price: 349,
     image:
       "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Deep Body Cleanser Avanora My Serendipity No.1 200ml",
+    name: "Deep Body Cleanser KANKI My Serendipity No.1 200ml",
     price: 499,
     image:
       "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Facial Cleanser Avanora Your Skin Bae Spirulina 100ml",
+    name: "Facial Cleanser KANKI Your Skin Bae Spirulina 100ml",
     price: 359,
     image:
       "https://images.unsplash.com/photo-1519400197429-404ae1a1e184?auto=format&fit=crop&w=800&q=80",
@@ -36,7 +36,7 @@ export function NewArrivalsSection() {
           New Arrivals
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-base text-zinc-500">
-          The latest products from Avanora to brighten and nourish your
+          The latest products from KANKI to brighten and nourish your
           beautiful skin.
         </p>
 
@@ -44,7 +44,7 @@ export function NewArrivalsSection() {
           {products.map((product) => (
             <article
               key={product.name}
-              className="group flex h-[474px] w-[324px] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:border-emerald-500/60"
+              className="group flex h-[474px] w-[324px] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:border-[var(--color-primary)]/60"
             >
               <div className="relative h-[324px] w-full bg-zinc-100">
                 <Image

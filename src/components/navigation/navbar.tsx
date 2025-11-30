@@ -52,7 +52,7 @@ export function Navbar() {
           <Link
             href="/"
             className="flex items-center gap-2"
-            aria-label="AvaNora"
+            aria-label="KANKI"
           >
             <BrandLogo />
           </Link>
@@ -98,7 +98,12 @@ export function Navbar() {
           <div className="h-6 w-px bg-zinc-200" aria-hidden="true" />
 
           {isAuthenticated ? (
-            <div className="relative" ref={dropdownRef}>
+            <div
+              className="relative"
+              ref={dropdownRef}
+              onMouseEnter={() => setShowDropdown(true)}
+              onMouseLeave={() => setShowDropdown(false)}
+            >
               <button
                 type="button"
                 onClick={() => setShowDropdown(!showDropdown)}
@@ -109,31 +114,31 @@ export function Navbar() {
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-[--color-border-primary] bg-background shadow-lg">
-                  <div className="p-3 border-b border-[--color-border-primary]">
-                    <p className="text-sm font-semibold text-[--color-primary-dark] truncate">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-[var(--color-border-primary)] bg-background shadow-lg">
+                  <div className="p-3 border-b border-[var(--color-border-primary)]">
+                    <p className="text-sm font-semibold text-[var(--color-primary-dark)] truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-[--color-text-muted] truncate">{user?.email}</p>
+                    <p className="text-xs text-[var(--color-text-muted)] truncate">{user?.email}</p>
                   </div>
                   <div className="p-2">
                     <Link
                       href="/profile"
                       onClick={() => setShowDropdown(false)}
-                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[--color-primary-dark] hover:bg-[--color-bg-secondary] transition"
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[var(--color-primary-dark)] hover:bg-[var(--color-bg-secondary)] transition"
                     >
                       My Profile
                     </Link>
                     <Link
                       href="/wishlist"
                       onClick={() => setShowDropdown(false)}
-                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[--color-primary-dark] hover:bg-[--color-bg-secondary] transition"
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[var(--color-primary-dark)] hover:bg-[var(--color-bg-secondary)] transition"
                     >
                       Wishlist
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[--color-accent-red] hover:bg-[--color-accent-red-bg] transition"
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm font-medium text-[var(--color-accent-red)] hover:bg-[var(--color-accent-red-bg)] transition"
                     >
                       Logout
                     </button>

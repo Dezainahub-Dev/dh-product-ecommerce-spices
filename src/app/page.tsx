@@ -28,7 +28,7 @@ export default function Home() {
           
           <h1 className="mt-8 text-4xl font-semibold leading-tight text-zinc-900 sm:text-5xl lg:text-[64px]">
             Let Your Skin{" "}
-            <span className="text-emerald-900">Shine From Within</span>
+            <span className="text-[var(--color-primary)]">Shine From Within</span>
           </h1>
           <p className="mt-6 text-2xl font-light leading-snug text-zinc-500 sm:text-[28px]">
             Bright, Beautiful, <br /> And Confidence
@@ -49,7 +49,7 @@ export default function Home() {
                 key={item}
                 className="inline-flex items-center gap-2 rounded-full border border-zinc-100 bg-zinc-50 px-4 py-2"
               >
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary)]" />
                 {item}
               </li>
             ))}

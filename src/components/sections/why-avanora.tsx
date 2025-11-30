@@ -38,14 +38,14 @@ export function WhyAvanoraSection() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 mx-auto h-[520px] max-w-4xl bg-gradient-to-r from-zinc-900/0 via-zinc-900/60 to-zinc-900/0 blur-3xl"
         />
-        <p className="text-sm uppercase tracking-[0.4em] text-emerald-400">
-          Why Avanora
+        <p className="text-sm uppercase tracking-[0.4em] text-[var(--color-primary-light)]">
+          Why KANKI
         </p>
-        <h2 className="mt-4 text-4xl font-semibold text-emerald-200">
-          Why AVANORA
+        <h2 className="mt-4 text-4xl font-semibold text-[var(--color-primary-lighter)]">
+          Why KANKI
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-lg text-zinc-300">
-          Avanora’s best products formulated by natural ingredients that provide
+          KANKI's best products formulated by natural ingredients that provide
           the best benefit for your skin.
         </p>
 

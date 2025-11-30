@@ -9,21 +9,21 @@ const products = [
       "https://images.unsplash.com/photo-1542838686-73e5377144cc?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Avanora Your Skin Bae Marine Collagen Serum 30ml",
+    name: "KANKI Your Skin Bae Marine Collagen Serum 30ml",
     price: 349,
     oldPrice: 389,
     image:
       "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Sunscreen Avanora Your Skin Bae Shield of Sun SPF 50",
+    name: "Sunscreen KANKI Your Skin Bae Shield of Sun SPF 50",
     price: 359,
     oldPrice: 399,
     image:
       "https://images.unsplash.com/photo-1501426026826-31c667bdf23d?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Avanora Your Skin Bae Lactic Acid Serum 30ml",
+    name: "KANKI Your Skin Bae Lactic Acid Serum 30ml",
     price: 299,
     oldPrice: 359,
     image:
@@ -48,7 +48,7 @@ export function BestSellersSection() {
           {products.map((product) => (
             <article
               key={product.name}
-              className="group flex h-[474px] w-[324px] flex-col gap-6 rounded-3xl border border-zinc-200 bg-white p-4 pb-6 text-left shadow-[0_12px_45px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-emerald-500/60"
+              className="group flex h-[474px] w-[324px] flex-col gap-6 rounded-3xl border border-zinc-200 bg-white p-4 pb-6 text-left shadow-[0_12px_45px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-[var(--color-primary)]/60"
             >
               <div className="relative h-[324px] w-full overflow-hidden rounded-3xl bg-zinc-100">
                 <Image

@@ -29,12 +29,12 @@ export type Product = {
 export const products: Product[] = [
   {
     slug: "skin-serum-brighten-vitamin-c-30ml",
-    name: "Avanora Skin Serum to Brighten Your Skin Bae Vitamin C 30ml",
+    name: "KANKI Skin Serum to Brighten Your Skin Bae Vitamin C 30ml",
     category: "Serum/Ampule",
     shortDescription:
       "Brightening serum packed with Vitamin C, Niacinamide, and Mandarin Orange Extract for glowing, even-toned skin.",
     description:
-      "Avanora Serum from Your Skin Bae Series which functions as a brightening serum. Contains a combination of Brightening Complex, namely Vitamin C, Niacinamide, and Mandarin Orange Extract which are effective for brightening the skin, disguising acne scars, moisturizing the skin, disguising the appearance of pores, as an antioxidant, caring for the skin to look healthier.",
+      "KANKI Serum from Your Skin Bae Series which functions as a brightening serum. Contains a combination of Brightening Complex, namely Vitamin C, Niacinamide, and Mandarin Orange Extract which are effective for brightening the skin, disguising acne scars, moisturizing the skin, disguising the appearance of pores, as an antioxidant, caring for the skin to look healthier.",
     price: 14.99,
     oldPrice: 20.99,
     rating: 4.9,
@@ -101,7 +101,7 @@ export const products: Product[] = [
   },
   {
     slug: "marine-collagen-serum-30ml",
-    name: "Avanora Your Skin Bae Marine Collagen Serum 30ml - Treats Skin...",
+    name: "KANKI Your Skin Bae Marine Collagen Serum 30ml - Treats Skin...",
     category: "Serum",
     shortDescription: "Collagen-rich serum for plump, hydrated, and elastic skin.",
     description:
@@ -135,7 +135,7 @@ export const products: Product[] = [
   },
   {
     slug: "skin-bae-sun-shield-spf50",
-    name: "Sunscreen Avanora Your Skin Bae Shield of Sun SPF 50 PA+ 30ml",
+    name: "Sunscreen KANKI Your Skin Bae Shield of Sun SPF 50 PA+ 30ml",
     category: "Sunscreen",
     shortDescription: "Lightweight sunscreen with broad-spectrum protection.",
     description:
@@ -169,7 +169,7 @@ export const products: Product[] = [
   },
   {
     slug: "lactic-acid-serum-30ml",
-    name: "Avanora Your Skin Bae Lactic Acid Serum 30ml - Time to Look Glow Up",
+    name: "KANKI Your Skin Bae Lactic Acid Serum 30ml - Time to Look Glow Up",
     category: "Exfoliating Serum",
     shortDescription: "Gentle exfoliating serum for brighter, smoother skin.",
     description:
@@ -203,7 +203,7 @@ export const products: Product[] = [
   },
   {
     slug: "tranexamic-acid-serum-30ml",
-    name: "Avanora Your Skin Bae Tranexamic Acid Serum 30ml - Disguise PIH & PIE",
+    name: "KANKI Your Skin Bae Tranexamic Acid Serum 30ml - Disguise PIH & PIE",
     category: "Serum",
     shortDescription: "Targeted treatment to fade spots and post-inflammatory hyperpigmentation.",
     description:
@@ -237,7 +237,7 @@ export const products: Product[] = [
   },
   {
     slug: "shield-defense-mist-30ml",
-    name: "Avanora Your Skin Bae Shield Defense Mist 30ml",
+    name: "KANKI Your Skin Bae Shield Defense Mist 30ml",
     category: "Mist",
     shortDescription: "Anti-pollution mist for on-the-go hydration.",
     description:
@@ -269,7 +269,7 @@ export const products: Product[] = [
   },
   {
     slug: "intensive-repair-cream-35ml",
-    name: "Avanora Your Skin Bae Intensive Repair Cream 35ml",
+    name: "KANKI Your Skin Bae Intensive Repair Cream 35ml",
     category: "Moisturizer",
     shortDescription: "Barrier strengthening cream for resilient, calm skin.",
     description:

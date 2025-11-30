@@ -233,7 +233,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full rounded-xl bg-[--color-primary] px-8 py-3.5 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_45px_rgba(77,156,44,0.35)] transition hover:bg-[--color-primary-dark] disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-[var(--color-primary)] px-8 py-3.5 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_45px_rgba(103,39,27,0.35)] transition hover:bg-[var(--color-primary-dark)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? 'Signing In...' : 'Sign In'}
               </button>

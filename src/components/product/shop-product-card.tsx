@@ -63,38 +63,51 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
         message="Please login to add items to your cart"
       />
 
-      <Link
-        href={`/shop-now/${product.slug}`}
-        className="relative flex flex-col rounded-3xl border border-[--color-border-secondary] bg-background p-4 shadow-[0_12px_32px_rgba(103,39,27,0.05)] transition hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-border-light)]"
-      >
-      <div className="relative flex h-56 w-full items-center justify-center rounded-2xl bg-[--color-bg-image]">
-        <WishlistHeartButton productUid={product.uid} />
-        {product.imageUrl ? (
-          <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover rounded-2xl" />
-        ) : (
-          <PlaceholderImage />
-        )}
-      </div>
-      <div className="mt-4 flex flex-1 flex-col justify-between px-1">
-        <h3 className="text-base font-semibold text-zinc-800">{product.title}</h3>
-        <div className="mt-3 text-lg font-semibold text-[--color-primary]">
-          {formatPrice(product.minPriceCents)}
-          {product.maxPriceCents && product.maxPriceCents > product.minPriceCents && (
-            <span className="ml-3 text-base font-normal text-zinc-400 line-through">
-              {formatPrice(product.maxPriceCents)}
-            </span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={isAdding || !product.inStock}
-          className="mt-4 inline-flex w-full items-center justify-center rounded-2xl border border-[--color-primary] px-4 py-2 text-sm font-semibold text-[--color-primary] transition hover:bg-[--color-primary] hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+      <div className="group flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md">
+        <Link
+          href={`/shop-now/${product.slug}`}
+          className="relative flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
         >
-          {!product.inStock ? "Out of Stock" : isAdding ? "Adding..." : "Add to Cart"}
-        </button>
+          <div className="relative flex h-64 w-full items-center justify-center overflow-hidden rounded-t-2xl bg-zinc-50">
+            <div className="absolute right-3 top-3 z-10">
+              <WishlistHeartButton productUid={product.uid} />
+            </div>
+            {product.imageUrl ? (
+              <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover" />
+            ) : (
+              <PlaceholderImage />
+            )}
+          </div>
+        </Link>
+
+        <div className="flex flex-1 flex-col p-4">
+          <Link href={`/shop-now/${product.slug}`}>
+            <h3 className="text-base font-medium text-zinc-900 line-clamp-2 hover:text-[var(--color-primary)] transition">
+              {product.title}
+            </h3>
+          </Link>
+
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-lg font-semibold text-[var(--color-primary)]">
+              {formatPrice(product.minPriceCents)}
+            </span>
+            {product.maxPriceCents && product.maxPriceCents > product.minPriceCents && (
+              <span className="text-sm text-zinc-400 line-through">
+                {formatPrice(product.maxPriceCents)}
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={isAdding || !product.inStock}
+            className="mt-4 inline-flex w-full items-center justify-center rounded-full border-2 border-[var(--color-primary)] px-6 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition hover:bg-[var(--color-primary)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[var(--color-primary)]"
+          >
+            {!product.inStock ? "Out of Stock" : isAdding ? "Adding..." : "Add to Cart"}
+          </button>
+        </div>
       </div>
-    </Link>
     </>
   );
 }

@@ -15,6 +15,8 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { authService, ProfileResponse } from "@/lib/auth";
 import { validators } from "@/lib/validators";
 import { AlertCircleIcon } from "@/components/icons";
+import { AddressFormModal, Address } from "@/components/profile/address-form-modal";
+import { DeleteConfirmationModal } from "@/components/profile/delete-confirmation-modal";
 
 const profileMenu = [
   { label: "Profile Details", value: "profile" },
@@ -87,6 +89,13 @@ export function ProfileAddressPage() {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const firstNameInputRef = useRef<HTMLInputElement>(null);
+
+  // Address management state
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAddress, setDeletingAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -258,6 +267,85 @@ export function ProfileAddressPage() {
 
   const handleCloseOrderDetails = () => {
     setSelectedOrder(null);
+  };
+
+  // Address handlers
+  const handleAddNewAddress = () => {
+    setEditingAddress(null);
+    setShowAddressModal(true);
+  };
+
+  const handleEditAddress = (address: Address) => {
+    setEditingAddress(address);
+    setShowAddressModal(true);
+  };
+
+  const handleSaveAddress = (address: Address) => {
+    if (editingAddress) {
+      // Update existing address
+      setAddresses((prev) =>
+        prev.map((addr) => {
+          if (addr.id === address.id) {
+            // If this address is being set as default, remove default from others
+            if (address.isDefault) {
+              return address;
+            }
+            return address;
+          }
+          // If the new address is default, remove default from this one
+          if (address.isDefault) {
+            return { ...addr, isDefault: false };
+          }
+          return addr;
+        })
+      );
+    } else {
+      // Add new address
+      setAddresses((prev) => {
+        // If this is the first address, make it default
+        const isFirstAddress = prev.length === 0;
+        const newAddress = { ...address, isDefault: isFirstAddress || address.isDefault };
+
+        // If new address is default, remove default from others
+        if (newAddress.isDefault) {
+          return [...prev.map((addr) => ({ ...addr, isDefault: false })), newAddress];
+        }
+        return [...prev, newAddress];
+      });
+    }
+    setShowAddressModal(false);
+    setEditingAddress(null);
+  };
+
+  const handleDeleteClick = (address: Address) => {
+    setDeletingAddress(address);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingAddress) {
+      setAddresses((prev) => {
+        const filtered = prev.filter((addr) => addr.id !== deletingAddress.id);
+
+        // If we deleted the default address and there are other addresses, make the first one default
+        if (deletingAddress.isDefault && filtered.length > 0) {
+          filtered[0].isDefault = true;
+        }
+
+        return filtered;
+      });
+    }
+    setShowDeleteModal(false);
+    setDeletingAddress(null);
+  };
+
+  const handleMakeDefault = (addressId: string) => {
+    setAddresses((prev) =>
+      prev.map((addr) => ({
+        ...addr,
+        isDefault: addr.id === addressId,
+      }))
+    );
   };
 
   const renderContent = () => {
@@ -521,42 +609,77 @@ export function ProfileAddressPage() {
       default:
         return (
           <div className="space-y-4">
-            {profile.defaultAddress ? (
-              <article className="flex flex-col gap-4 rounded-2xl border border-border-primary bg-bg-card p-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-base font-semibold text-primary-dark">
-                    {profile.firstName} {profile.lastName}{' '}
-                    {profile.defaultAddress.phone && (
-                      <>
-                        <span className="text-zinc-400">|</span>{' '}
-                        <span className="text-primary-dark">{profile.defaultAddress.phone}</span>
-                      </>
-                    )}
-                    {' '}
-                    <span className="text-zinc-400">|</span>{' '}
-                    <span className="font-normal text-primary">Default</span>
-                  </p>
-                  <div className="mt-2 space-y-1 text-sm text-zinc-500">
-                    <p>{profile.defaultAddress.line1}</p>
-                    {profile.defaultAddress.line2 && <p>{profile.defaultAddress.line2}</p>}
-                    <p>
-                      {profile.defaultAddress.city}, {profile.defaultAddress.state}{' '}
-                      {profile.defaultAddress.postalCode}
-                    </p>
-                    <p>{profile.defaultAddress.country}</p>
-                  </div>
-                </div>
-                <button className="h-10 rounded-full border border-border-light px-6 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary">
-                  Edit
-                </button>
-              </article>
-            ) : (
+            {addresses.length === 0 ? (
               <div className="rounded-2xl border border-border-primary bg-bg-card p-6 text-center text-sm text-zinc-500">
                 No address saved yet.{' '}
-                <button className="text-primary underline">
+                <button
+                  onClick={handleAddNewAddress}
+                  className="text-primary underline hover:text-primary-dark"
+                >
                   Add your first address
                 </button>
               </div>
+            ) : (
+              addresses.map((address) => (
+                <article
+                  key={address.id}
+                  className="flex flex-col gap-4 rounded-2xl border border-border-primary bg-bg-card p-4 sm:flex-row sm:items-start sm:justify-between"
+                >
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-base font-semibold text-primary-dark">
+                        {address.name}
+                      </p>
+                      <span className="text-zinc-400">|</span>
+                      <span className="text-sm text-zinc-600">{address.phone}</span>
+                      <span className="text-zinc-400">|</span>
+                      <span className="rounded-full bg-bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                        {address.addressType}
+                      </span>
+                      {address.isDefault && (
+                        <>
+                          <span className="text-zinc-400">|</span>
+                          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                            Default Address
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-3 space-y-1 text-sm text-zinc-600">
+                      <p className="font-medium text-primary-dark">{address.line1}</p>
+                      {address.line2 && <p>{address.line2}</p>}
+                      {address.landmark && (
+                        <p className="text-zinc-500">Landmark: {address.landmark}</p>
+                      )}
+                      <p>
+                        {address.city}, {address.state} {address.pincode}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 sm:flex-col sm:items-end">
+                    <button
+                      onClick={() => handleEditAddress(address)}
+                      className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(address)}
+                      className="rounded-full border border-accent-red/30 bg-accent-red-bg px-5 py-2 text-sm font-semibold text-accent-red transition hover:border-accent-red hover:bg-accent-red hover:text-white"
+                    >
+                      Delete
+                    </button>
+                    {!address.isDefault && (
+                      <button
+                        onClick={() => handleMakeDefault(address.id)}
+                        className="rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary hover:text-white"
+                      >
+                        Make Default
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))
             )}
           </div>
         );
@@ -565,6 +688,28 @@ export function ProfileAddressPage() {
 
   return (
     <main className="bg-white text-primary-dark">
+      {/* Address Form Modal */}
+      <AddressFormModal
+        isOpen={showAddressModal}
+        onClose={() => {
+          setShowAddressModal(false);
+          setEditingAddress(null);
+        }}
+        onSave={handleSaveAddress}
+        editingAddress={editingAddress}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingAddress(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        address={deletingAddress}
+      />
+
       {/* Order Details Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -751,7 +896,10 @@ export function ProfileAddressPage() {
                 </h1>
               </div>
               {activeTab === "address" && (
-                <button className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary transition hover:bg-bg-secondary">
+                <button
+                  onClick={handleAddNewAddress}
+                  className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary transition hover:bg-bg-secondary"
+                >
                   + Add New
                 </button>
               )}

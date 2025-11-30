@@ -1,25 +1,62 @@
 "use client";
 
-import { MouseEvent, useTransition } from "react";
-import { useWishlistStore } from "@/store/wishlist-store";
+import { MouseEvent, useState } from "react";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
+import { productService } from "@/lib/products";
 
 type WishlistHeartButtonProps = {
-  slug: string;
+  productUid: string;
+  skuUid?: string; // Optional: if provided, will add this specific SKU, otherwise fetches first available SKU
 };
 
-export function WishlistHeartButton({ slug }: WishlistHeartButtonProps) {
-  const toggleItem = useWishlistStore(
-    (state) => state.toggleItem
-  );
-  const active = useWishlistStore((state) =>
-    state.items.includes(slug)
-  );
-  const [isPending, startTransition] = useTransition();
+export function WishlistHeartButton({ productUid, skuUid }: WishlistHeartButtonProps) {
+  const { isAuthenticated } = useAuth();
+  const { items, addToWishlist, removeFromWishlist } = useWishlist();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+  // Check if ANY SKU of this product is in the wishlist
+  const wishlistItem = items.find((item) => item.product.uid === productUid);
+  const active = !!wishlistItem;
+
+  const handleClick = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    startTransition(() => toggleItem(slug));
+
+    if (!isAuthenticated) {
+      alert('Please login to add items to your wishlist');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      if (wishlistItem) {
+        // Remove from wishlist
+        await removeFromWishlist(wishlistItem.uid);
+      } else {
+        // Add to wishlist - need to determine which SKU to add
+        let targetSkuUid = skuUid;
+
+        if (!targetSkuUid) {
+          // Fetch product SKUs to get the first available one
+          const skus = await productService.getProductSkus(productUid);
+          const firstInStockSku = skus.find(sku => sku.inStock);
+          targetSkuUid = firstInStockSku?.uid || skus[0]?.uid;
+        }
+
+        if (!targetSkuUid) {
+          alert('No SKU available for this product');
+          return;
+        }
+
+        await addToWishlist(targetSkuUid);
+      }
+    } catch (err: any) {
+      console.error('Wishlist operation failed:', err);
+      alert(err.message || 'Failed to update wishlist');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -28,12 +65,12 @@ export function WishlistHeartButton({ slug }: WishlistHeartButtonProps) {
       aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={active}
       onClick={handleClick}
-      disabled={isPending}
+      disabled={isProcessing}
       className={`absolute right-4 top-4 inline-flex h-12 w-12 items-center justify-center rounded-full border bg-white/90 shadow transition ${
         active
           ? "border-[var(--color-primary)] text-[var(--color-accent-red-heart)]"
           : "border-white text-zinc-400 hover:text-[var(--color-text-dark)]"
-      } ${isPending ? "opacity-70" : ""}`}
+      } ${isProcessing ? "opacity-70 cursor-wait" : ""}`}
     >
       <svg
         viewBox="0 0 24 24"

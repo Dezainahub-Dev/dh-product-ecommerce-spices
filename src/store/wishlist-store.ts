@@ -1,63 +1,45 @@
 'use client';
 
 import { create } from "zustand";
-import { getProductBySlug, Product } from "@/data/products";
 
+/**
+ * Simple wishlist store for tracking SKU UIDs in wishlist
+ * For full wishlist functionality with API integration, use the useWishlist hook
+ */
 type WishlistStore = {
-  items: string[];
-  products: Product[];
-  addItem: (slug: string) => void;
-  removeItem: (slug: string) => void;
-  toggleItem: (slug: string) => void;
+  items: string[]; // Array of SKU UIDs
+  addItem: (skuUid: string) => void;
+  removeItem: (skuUid: string) => void;
+  toggleItem: (skuUid: string) => void;
   clear: () => void;
 };
-
-const mapItemsToProducts = (items: string[]): Product[] =>
-  items
-    .map((slug) => getProductBySlug(slug))
-    .filter(
-      (product): product is Product => Boolean(product)
-    );
 
 export const useWishlistStore = create<WishlistStore>(
   (set) => ({
     items: [],
-    products: [],
-    addItem: (slug) =>
+    addItem: (skuUid) =>
       set((state) => {
-        if (state.items.includes(slug)) {
+        if (state.items.includes(skuUid)) {
           return state;
         }
-        const items = [...state.items, slug];
         return {
-          items,
-          products: mapItemsToProducts(items),
+          items: [...state.items, skuUid],
         };
       }),
-    removeItem: (slug) =>
+    removeItem: (skuUid) =>
+      set((state) => ({
+        items: state.items.filter((item) => item !== skuUid),
+      })),
+    toggleItem: (skuUid) =>
       set((state) => {
-        const items = state.items.filter(
-          (item) => item !== slug
-        );
-        return {
-          items,
-          products: mapItemsToProducts(items),
-        };
-      }),
-    toggleItem: (slug) =>
-      set((state) => {
-        const items = state.items.includes(slug)
-          ? state.items.filter((item) => item !== slug)
-          : [...state.items, slug];
-        return {
-          items,
-          products: mapItemsToProducts(items),
-        };
+        const items = state.items.includes(skuUid)
+          ? state.items.filter((item) => item !== skuUid)
+          : [...state.items, skuUid];
+        return { items };
       }),
     clear: () =>
       set(() => ({
         items: [],
-        products: [],
       })),
   })
 );

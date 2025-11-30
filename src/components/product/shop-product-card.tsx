@@ -1,29 +1,72 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useState } from "react";
 import type { ProductListItem } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
-import { useCartStore } from "@/store/cart-store";
+import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { productService } from "@/lib/products";
 import { WishlistHeartButton } from "@/components/product/wishlist-heart-button";
+import { LoginRequiredModal } from "@/components/modals/login-required-modal";
 
 export function ShopProductCard({ product }: { product: ProductListItem }) {
-  const addItem = useCartStore((state) => state.addItem);
-  const [isAdding, startTransition] = useTransition();
+  const { isAuthenticated } = useAuth();
+  const { addItem: addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddToCart = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    startTransition(() => addItem(product.slug));
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      // Fetch first SKU and add via API
+      const skus = await productService.getProductSkus(product.uid);
+      const firstInStockSku = skus.find(sku => sku.inStock);
+      const targetSku = firstInStockSku || skus[0];
+
+      if (!targetSku) {
+        alert('No SKU available for this product');
+        return;
+      }
+
+      await addToCart({
+        productUid: product.uid,
+        skuUid: targetSku.uid,
+        quantity: 1,
+        attributes: targetSku.attributes || {},
+      });
+      alert('Added to cart!');
+    } catch (error: any) {
+      console.error('Failed to add to cart:', error);
+      alert(error.message || 'Failed to add to cart');
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
-    <Link
-      href={`/shop-now/${product.slug}`}
-      className="relative flex flex-col rounded-3xl border border-[--color-border-secondary] bg-background p-4 shadow-[0_12px_32px_rgba(103,39,27,0.05)] transition hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-border-light)]"
-    >
+    <>
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        message="Please login to add items to your cart"
+      />
+
+      <Link
+        href={`/shop-now/${product.slug}`}
+        className="relative flex flex-col rounded-3xl border border-[--color-border-secondary] bg-background p-4 shadow-[0_12px_32px_rgba(103,39,27,0.05)] transition hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-border-light)]"
+      >
       <div className="relative flex h-56 w-full items-center justify-center rounded-2xl bg-[--color-bg-image]">
-        <WishlistHeartButton slug={product.slug} />
+        <WishlistHeartButton productUid={product.uid} />
         {product.imageUrl ? (
           <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover rounded-2xl" />
         ) : (
@@ -50,6 +93,7 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
         </button>
       </div>
     </Link>
+    </>
   );
 }
 

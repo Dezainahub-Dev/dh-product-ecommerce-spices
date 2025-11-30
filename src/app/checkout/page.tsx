@@ -1,31 +1,75 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Footer } from "@/components/footer";
-import { useCartStore } from "@/store/cart-store";
-
-const formatINR = (amount: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-  }).format(amount);
-
-const taxesRate = 0.12;
+import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { formatCartPrice } from "@/lib/cart";
 
 export default function CheckoutPage() {
-  const products = useCartStore((state) => state.products);
-  const subtotal = useCartStore((state) => state.subtotal);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { cart, loading } = useCart();
 
-  const taxes = subtotal * taxesRate;
-  const deliveryFee = subtotal > 0 ? 0 : 0;
-  const voucherDiscount = 0;
-  const total = subtotal + taxes + deliveryFee - voucherDiscount;
+  // Redirect to login if not authenticated
+  if (!isAuthenticated && !loading) {
+    return (
+      <main className="bg-white text-zinc-900">
+        <section className="mx-auto max-w-[1300px] px-6 py-20 text-center">
+          <div className="mx-auto max-w-md">
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-bg-secondary)]">
+                <svg
+                  className="h-10 w-10 text-[var(--color-primary)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-[var(--color-text-dark)]">Login Required</h1>
+            <p className="mt-4 text-lg text-zinc-600">
+              Please login to proceed with checkout.
+            </p>
+            <div className="mt-8 flex flex-col gap-3">
+              <button
+                onClick={() => router.push('/login')}
+                className="w-full rounded-full bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_15px_35px_rgba(103,39,27,0.25)] transition hover:bg-[var(--color-primary-darker)]"
+              >
+                Login Now
+              </button>
+              <button
+                onClick={() => router.push('/shop-now')}
+                className="w-full rounded-full border border-[var(--color-border-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-text-dark)] transition hover:bg-[var(--color-bg-secondary)]"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    );
+  }
+
+  const subtotalCents = cart?.summary.subtotalCents || 0;
+  const discountCents = cart?.summary.discountCents || 0;
+  const taxCents = cart?.summary.taxCents || 0;
+  const shippingCents = cart?.summary.shippingCents || 0;
+  const totalCents = cart?.summary.totalCents || 0;
 
   const handlePay = () => {
     alert("Payment successful! Thank you for your purchase.");
-    clearCart();
+    // Note: In a real implementation, this would create an order via API
+    // and the cart would be cleared by the backend
   };
 
   return (
@@ -71,7 +115,10 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-4 space-y-4">
-                {products.length === 0 && (
+                {loading && (
+                  <p className="text-zinc-500">Loading cart...</p>
+                )}
+                {!loading && (!cart?.items || cart.items.length === 0) && (
                   <p className="text-zinc-500">
                     Your cart is empty.{" "}
                     <Link href="/shop-now" className="text-[var(--color-primary)] underline">
@@ -80,30 +127,32 @@ export default function CheckoutPage() {
                     .
                   </p>
                 )}
-                {products.map(({ product, quantity }) => (
+                {!loading && cart?.items.map((item) => (
                   <article
-                    key={product.slug}
+                    key={item.itemUid}
                     className="flex items-start gap-4 rounded-2xl border border-[var(--color-border-primary)] bg-[var(--color-bg-card)] p-4"
                   >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-bg-image)]">
-                      <PlaceholderThumb />
+                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-[var(--color-bg-image)]">
+                      {item.product.thumbnail ? (
+                        <img src={item.product.thumbnail} alt={item.product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <PlaceholderThumb />
+                      )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)]/80">
-                        {product.category}
-                      </p>
                       <p className="text-base font-semibold text-[var(--color-text-dark)]">
-                        {product.name}
+                        {item.product.name}
                       </p>
+                      <p className="mt-1 text-xs text-zinc-500">SKU: {item.sku.code}</p>
                       <p className="mt-2 text-sm text-zinc-500">
-                        {quantity} item{quantity > 1 ? "s" : ""} ×{" "}
+                        {item.quantity} item{item.quantity > 1 ? "s" : ""} ×{" "}
                         <span className="font-semibold text-[var(--color-primary)]">
-                          {formatINR(product.price)}
+                          {formatCartPrice(item.unitPriceCents)}
                         </span>
                       </p>
                     </div>
                     <p className="text-lg font-semibold text-[var(--color-primary)]">
-                      {formatINR(product.price * quantity)}
+                      {formatCartPrice(item.totalPriceCents)}
                     </p>
                   </article>
                 ))}
@@ -120,27 +169,29 @@ export default function CheckoutPage() {
                 </Link>
               </div>
               <dl className="mt-4 space-y-3 text-sm text-zinc-500">
-                <SummaryRow label="Subtotal" value={formatINR(subtotal)} />
-                <SummaryRow label="Delivery Fee" value={deliveryFee === 0 ? "Free" : formatINR(deliveryFee)} />
-                <SummaryRow label="Voucher Discount" value={formatINR(-voucherDiscount)} />
-                <SummaryRow label="Estimated Taxes" value={formatINR(taxes)} />
+                <SummaryRow label="Subtotal" value={formatCartPrice(subtotalCents)} />
+                <SummaryRow label="Delivery Fee" value={shippingCents === 0 ? "Free" : formatCartPrice(shippingCents)} />
+                <SummaryRow label="Voucher Discount" value={discountCents > 0 ? `- ${formatCartPrice(discountCents)}` : "- ₹0.00"} />
+                <SummaryRow label="Estimated Taxes" value={formatCartPrice(taxCents)} />
               </dl>
-              <div className="mt-4 rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-3 text-sm text-[var(--color-text-dark)]">
-                <p className="font-semibold">Voucher Applied!</p>
-                <p>Free shipping promo voucher successfully used.</p>
-                <p className="text-xs text-zinc-500">
-                  Use promo voucher before January 20, 2025
-                </p>
-              </div>
+              {cart?.discounts && cart.discounts.length > 0 && (
+                <div className="mt-4 rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-3 text-sm text-[var(--color-text-dark)]">
+                  <p className="font-semibold">Voucher Applied!</p>
+                  <p>Code: {cart.discounts[0].code}</p>
+                  <p className="text-xs text-zinc-500">
+                    Discount: {formatCartPrice(cart.discounts[0].valueCents)}
+                  </p>
+                </div>
+              )}
               <div className="mt-5 flex items-center justify-between text-lg font-semibold text-[var(--color-text-dark)]">
                 <span>Total</span>
-                <span>{formatINR(total)}</span>
+                <span>{formatCartPrice(totalCents)}</span>
               </div>
               <button
                 onClick={handlePay}
                 className="mt-5 w-full rounded-xl bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-[0_15px_35px_rgba(103,39,27,0.35)] transition hover:bg-[var(--color-primary-darker)]"
               >
-                Pay Now ({formatINR(total)})
+                Pay Now ({formatCartPrice(totalCents)})
               </button>
             </div>
           </aside>

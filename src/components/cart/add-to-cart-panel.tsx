@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from "react";
-import { useCartStore } from "@/store/cart-store";
-import { useWishlistStore } from "@/store/wishlist-store";
+import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginRequiredModal } from "@/components/modals/login-required-modal";
 import type { ProductDetail } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
 
@@ -24,30 +26,81 @@ function getSkuDisplayName(sku: ProductDetail['skus'][0]): string {
 }
 
 export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
-  const addItem = useCartStore((state) => state.addItem);
-  const toggleItem = useWishlistStore((state) => state.toggleItem);
-  const wishlisted = useWishlistStore((state) =>
-    state.items.includes(slug)
-  );
+  const { isAuthenticated } = useAuth();
+  const { addItem: addToCart } = useCart();
+  const { items, addToWishlist, removeFromWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   const [selectedSKUId, setSelectedSKUId] = useState(product.skus[0]?.uid || "");
+  const [wishlistProcessing, setWishlistProcessing] = useState(false);
+  const [cartProcessing, setCartProcessing] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const currentSKU = product.skus.find(sku => sku.uid === selectedSKUId) || product.skus[0];
+
+  // Check if the current product (any SKU) is in the wishlist
+  const wishlistItem = items.find((item) => item.product.uid === product.uid);
+  const wishlisted = !!wishlistItem;
 
   const increment = () => setQuantity((prev) => Math.min(prev + 1, currentSKU.availableQuantity));
   const decrement = () => setQuantity((prev) => Math.max(1, prev - 1));
 
-  const handleAdd = () => {
-    addItem(slug, quantity, getSkuDisplayName(currentSKU));
-    setQuantity(1);
+  const handleAdd = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setCartProcessing(true);
+    try {
+      await addToCart({
+        productUid: product.uid,
+        skuUid: currentSKU.uid,
+        quantity,
+        attributes: currentSKU.attributes || {},
+      });
+      alert(`Added ${quantity} item(s) to cart!`);
+      setQuantity(1);
+    } catch (error: any) {
+      console.error('Failed to add to cart:', error);
+      alert(error.message || 'Failed to add item to cart');
+    } finally {
+      setCartProcessing(false);
+    }
   };
 
-  const handleWishlist = () => {
-    toggleItem(slug);
+  const handleWishlist = async () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setWishlistProcessing(true);
+    try {
+      if (wishlistItem) {
+        // Remove from wishlist
+        await removeFromWishlist(wishlistItem.uid);
+      } else {
+        // Add currently selected SKU to wishlist
+        await addToWishlist(currentSKU.uid);
+      }
+    } catch (err: any) {
+      console.error('Wishlist operation failed:', err);
+      alert(err.message || 'Failed to update wishlist');
+    } finally {
+      setWishlistProcessing(false);
+    }
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        message="Please login to add items to your cart"
+      />
+
+      <div className="flex flex-col gap-4">
       {/* SKU Selector */}
       {product.skus.length > 1 && (
         <div>
@@ -128,22 +181,24 @@ export function AddToCartPanel({ slug, product }: AddToCartPanelProps) {
         </div>
         <button
           onClick={handleAdd}
-          disabled={!currentSKU.inStock || currentSKU.availableQuantity === 0}
+          disabled={!currentSKU.inStock || currentSKU.availableQuantity === 0 || cartProcessing}
           className="flex-1 rounded-full bg-[--color-primary] px-6 py-3 text-base font-semibold uppercase tracking-wide text-white shadow-[0_18px_35px_rgba(77,156,44,0.25)] transition hover:bg-[--color-primary-darker] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Add to Cart
+          {cartProcessing ? "Adding..." : "Add to Cart"}
         </button>
         <button
           onClick={handleWishlist}
+          disabled={wishlistProcessing}
           className={`flex-1 rounded-full border border-[--color-border-lighter] px-6 py-3 text-base font-semibold uppercase tracking-wide transition ${
             wishlisted
               ? "border-[--color-primary] text-[--color-primary] bg-[--color-bg-primary]"
               : "text-[--color-primary] hover:bg-[--color-bg-primary]"
-          }`}
+          } ${wishlistProcessing ? "opacity-50 cursor-wait" : ""}`}
         >
-          {wishlisted ? "Wishlisted" : "Add to Wishlist"}
+          {wishlistProcessing ? "Processing..." : wishlisted ? "Wishlisted" : "Add to Wishlist"}
         </button>
       </div>
     </div>
+    </>
   );
 }

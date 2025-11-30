@@ -68,15 +68,17 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
           href={`/shop-now/${product.slug}`}
           className="relative flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
         >
-          <div className="relative flex h-64 w-full items-center justify-center overflow-hidden rounded-t-2xl bg-zinc-50">
-            <div className="absolute right-3 top-3 z-10">
-              <WishlistHeartButton productUid={product.uid} />
+          <div className="relative p-4 pb-0">
+            <div className="relative flex h-64 w-full items-center justify-center overflow-hidden rounded-2xl bg-zinc-50">
+              <div className="absolute right-3 top-3 z-10">
+                <WishlistHeartButton productUid={product.uid} />
+              </div>
+              {product.imageUrl ? (
+                <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover" />
+              ) : (
+                <PlaceholderImage />
+              )}
             </div>
-            {product.imageUrl ? (
-              <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover" />
-            ) : (
-              <PlaceholderImage />
-            )}
           </div>
         </Link>
 

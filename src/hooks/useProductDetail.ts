@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { productService, ProductDetail } from '@/lib/products';
 
 interface UseProductDetailResult {
@@ -13,7 +13,7 @@ export function useProductDetail(productUid: string | null): UseProductDetailRes
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     if (!productUid) {
       setLoading(false);
       return;
@@ -35,12 +35,11 @@ export function useProductDetail(productUid: string | null): UseProductDetailRes
     } finally {
       setLoading(false);
     }
-  };
+  }, [productUid]);
 
   useEffect(() => {
     fetchProduct();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productUid]);
+  }, [fetchProduct]);
 
   return {
     product,

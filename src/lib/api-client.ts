@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://dh-ecom-backend.vercel.app';
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'https://dh-ecom-backend.vercel.app'}/api`;
 
 interface RequestOptions extends RequestInit {
   data?: any;

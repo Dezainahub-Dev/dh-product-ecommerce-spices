@@ -17,6 +17,8 @@ import { validators } from "@/lib/validators";
 import { AlertCircleIcon } from "@/components/icons";
 import { AddressFormModal, Address } from "@/components/profile/address-form-modal";
 import { DeleteConfirmationModal } from "@/components/profile/delete-confirmation-modal";
+import { addressService } from "@/lib/address";
+import { useToastStore } from "@/components/toast-notification";
 
 const profileMenu = [
   { label: "Profile Details", value: "profile" },
@@ -92,10 +94,12 @@ export function ProfileAddressPage() {
 
   // Address management state
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingAddress, setDeletingAddress] = useState<Address | null>(null);
+  const { addToast } = useToastStore();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -134,6 +138,26 @@ export function ProfileAddressPage() {
       firstNameInputRef.current?.focus();
     }
   }, [isEditingProfile]);
+
+  // Fetch addresses when address tab is active
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (activeTab === 'address' && authService.isAuthenticated()) {
+        try {
+          setAddressesLoading(true);
+          const fetchedAddresses = await addressService.getAddresses();
+          setAddresses(fetchedAddresses);
+        } catch (err: any) {
+          console.error('Error fetching addresses:', err);
+          addToast(err.message || 'Failed to load addresses', 'error');
+        } finally {
+          setAddressesLoading(false);
+        }
+      }
+    };
+
+    fetchAddresses();
+  }, [activeTab, addToast]);
 
   const startEditingProfile = () => {
     if (profile) {
@@ -280,41 +304,32 @@ export function ProfileAddressPage() {
     setShowAddressModal(true);
   };
 
-  const handleSaveAddress = (address: Address) => {
-    if (editingAddress) {
-      // Update existing address
-      setAddresses((prev) =>
-        prev.map((addr) => {
-          if (addr.id === address.id) {
-            // If this address is being set as default, remove default from others
-            if (address.isDefault) {
-              return address;
-            }
-            return address;
-          }
-          // If the new address is default, remove default from this one
-          if (address.isDefault) {
-            return { ...addr, isDefault: false };
-          }
-          return addr;
-        })
-      );
-    } else {
-      // Add new address
-      setAddresses((prev) => {
-        // If this is the first address, make it default
-        const isFirstAddress = prev.length === 0;
-        const newAddress = { ...address, isDefault: isFirstAddress || address.isDefault };
+  const handleSaveAddress = async (address: Address) => {
+    try {
+      setAddressesLoading(true);
 
-        // If new address is default, remove default from others
-        if (newAddress.isDefault) {
-          return [...prev.map((addr) => ({ ...addr, isDefault: false })), newAddress];
-        }
-        return [...prev, newAddress];
-      });
+      if (editingAddress) {
+        // Update existing address
+        const updatedAddress = await addressService.updateAddress(editingAddress.id, address);
+        setAddresses((prev) =>
+          prev.map((addr) => (addr.id === updatedAddress.id ? updatedAddress : addr))
+        );
+        addToast('Address updated successfully', 'success');
+      } else {
+        // Create new address
+        const newAddress = await addressService.createAddress(address);
+        setAddresses((prev) => [...prev, newAddress]);
+        addToast('Address added successfully', 'success');
+      }
+
+      setShowAddressModal(false);
+      setEditingAddress(null);
+    } catch (err: any) {
+      console.error('Error saving address:', err);
+      addToast(err.message || 'Failed to save address', 'error');
+    } finally {
+      setAddressesLoading(false);
     }
-    setShowAddressModal(false);
-    setEditingAddress(null);
   };
 
   const handleDeleteClick = (address: Address) => {
@@ -322,30 +337,47 @@ export function ProfileAddressPage() {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (deletingAddress) {
-      setAddresses((prev) => {
-        const filtered = prev.filter((addr) => addr.id !== deletingAddress.id);
+  const handleConfirmDelete = async () => {
+    if (!deletingAddress) return;
 
-        // If we deleted the default address and there are other addresses, make the first one default
-        if (deletingAddress.isDefault && filtered.length > 0) {
-          filtered[0].isDefault = true;
-        }
+    try {
+      setAddressesLoading(true);
+      await addressService.deleteAddress(deletingAddress.id);
 
-        return filtered;
-      });
+      setAddresses((prev) => prev.filter((addr) => addr.id !== deletingAddress.id));
+      addToast('Address deleted successfully', 'success');
+
+      setShowDeleteModal(false);
+      setDeletingAddress(null);
+    } catch (err: any) {
+      console.error('Error deleting address:', err);
+      addToast(err.message || 'Failed to delete address', 'error');
+      setShowDeleteModal(false);
+      setDeletingAddress(null);
+    } finally {
+      setAddressesLoading(false);
     }
-    setShowDeleteModal(false);
-    setDeletingAddress(null);
   };
 
-  const handleMakeDefault = (addressId: string) => {
-    setAddresses((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === addressId,
-      }))
-    );
+  const handleMakeDefault = async (addressId: string) => {
+    try {
+      setAddressesLoading(true);
+      await addressService.setDefaultAddress(addressId);
+
+      // Update local state
+      setAddresses((prev) =>
+        prev.map((addr) => ({
+          ...addr,
+          isDefault: addr.id === addressId,
+        }))
+      );
+      addToast('Default address updated', 'success');
+    } catch (err: any) {
+      console.error('Error setting default address:', err);
+      addToast(err.message || 'Failed to set default address', 'error');
+    } finally {
+      setAddressesLoading(false);
+    }
   };
 
   const renderContent = () => {
@@ -607,6 +639,17 @@ export function ProfileAddressPage() {
         );
       case "address":
       default:
+        if (addressesLoading) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-zinc-500">Loading addresses...</p>
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="space-y-4">
             {addresses.length === 0 ? (

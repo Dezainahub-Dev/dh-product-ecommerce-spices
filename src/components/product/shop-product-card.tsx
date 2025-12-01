@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import type { ProductListItem } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
 import { useCart } from "@/hooks/useCart";
@@ -11,14 +11,14 @@ import { WishlistHeartButton } from "@/components/product/wishlist-heart-button"
 import { LoginRequiredModal } from "@/components/modals/login-required-modal";
 import { useToastStore } from "@/components/toast-notification";
 
-export function ShopProductCard({ product }: { product: ProductListItem }) {
+export const ShopProductCard = memo(function ShopProductCard({ product }: { product: ProductListItem }) {
   const { isAuthenticated } = useAuth();
   const { addItem: addToCart } = useCart();
   const { addToast } = useToastStore();
   const [isAdding, setIsAdding] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const handleAddToCart = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddToCart = useCallback(async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -53,7 +53,7 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
     } finally{
       setIsAdding(false);
     }
-  };
+  }, [isAuthenticated, product.uid, addToCart, addToast]);
 
   return (
     <>
@@ -112,7 +112,7 @@ export function ShopProductCard({ product }: { product: ProductListItem }) {
       </div>
     </>
   );
-}
+});
 
 function PlaceholderImage() {
   return (

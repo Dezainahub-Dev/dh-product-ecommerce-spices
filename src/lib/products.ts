@@ -135,7 +135,7 @@ export const productService = {
     });
 
     return apiClient.get<ProductListResponse>(
-      `/api/customer/products?${params.toString()}`
+      `/customer/products?${params.toString()}`
     );
   },
 
@@ -168,7 +168,7 @@ export const productService = {
     }
 
     return apiClient.get<ProductListResponse>(
-      `/api/customer/products/search?${params.toString()}`
+      `/customer/products/search?${params.toString()}`
     );
   },
 
@@ -176,14 +176,14 @@ export const productService = {
    * Get product detail by UID
    */
   async getProductDetail(productUid: string): Promise<ProductDetail> {
-    return apiClient.get<ProductDetail>(`/api/customer/products/${productUid}`);
+    return apiClient.get<ProductDetail>(`/customer/products/${productUid}`);
   },
 
   /**
    * Get product SKUs/variants
    */
   async getProductSkus(productUid: string): Promise<Sku[]> {
-    return apiClient.get<Sku[]>(`/api/customer/products/${productUid}/skus`);
+    return apiClient.get<Sku[]>(`/customer/products/${productUid}/skus`);
   },
 
   /**
@@ -191,7 +191,7 @@ export const productService = {
    */
   async getRelatedProducts(productUid: string): Promise<ProductListItem[]> {
     return apiClient.get<ProductListItem[]>(
-      `/api/customer/products/${productUid}/related`
+      `/customer/products/${productUid}/related`
     );
   },
 

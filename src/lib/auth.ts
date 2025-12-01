@@ -40,7 +40,7 @@ export const authService = {
     firstName?: string,
     lastName?: string
   ): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/api/customer/auth/register', {
+    const response = await apiClient.post<AuthResponse>('/customer/auth/register', {
       email,
       password,
       firstName,
@@ -52,7 +52,7 @@ export const authService = {
   },
 
   async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/api/customer/auth/login', {
+    const response = await apiClient.post<AuthResponse>('/customer/auth/login', {
       email,
       password,
     });
@@ -63,7 +63,7 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/api/customer/auth/logout');
+      await apiClient.post('/customer/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -72,26 +72,26 @@ export const authService = {
   },
 
   async getProfile(): Promise<ProfileResponse> {
-    return apiClient.get<ProfileResponse>('/api/customer/me');
+    return apiClient.get<ProfileResponse>('/customer/me');
   },
 
   async updateProfile(updates: Partial<ProfileResponse>): Promise<ProfileResponse> {
-    return apiClient.patch<ProfileResponse>('/api/customer/me', updates);
+    return apiClient.patch<ProfileResponse>('/customer/me', updates);
   },
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    await apiClient.patch('/api/customer/me/change-password', {
+    await apiClient.patch('/customer/me/change-password', {
       currentPassword,
       newPassword,
     });
   },
 
   async forgotPassword(email: string): Promise<void> {
-    await apiClient.post('/api/customer/auth/forgot-password', { email });
+    await apiClient.post('/customer/auth/forgot-password', { email });
   },
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    await apiClient.post('/api/customer/auth/reset-password', {
+    await apiClient.post('/customer/auth/reset-password', {
       token,
       newPassword,
     });

@@ -2,15 +2,74 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Footer } from "@/components/footer";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCartPrice } from "@/lib/cart";
+import { addressService } from "@/lib/address";
+import type { Address } from "@/components/profile/address-form-modal";
+import { AddressSelectionModal } from "@/components/checkout/address-selection-modal";
+import { useToastStore } from "@/components/toast-notification";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { cart, loading } = useCart();
+  const { addToast } = useToastStore();
+
+  // Address management state
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [addressesLoading, setAddressesLoading] = useState(false);
+
+  // Fetch addresses on mount
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (isAuthenticated) {
+        try {
+          setAddressesLoading(true);
+          const fetchedAddresses = await addressService.getAddresses();
+          setAddresses(fetchedAddresses);
+
+          // Auto-select default address
+          const defaultAddress = fetchedAddresses.find(addr => addr.isDefault);
+          if (defaultAddress) {
+            setSelectedAddress(defaultAddress);
+          } else if (fetchedAddresses.length > 0) {
+            setSelectedAddress(fetchedAddresses[0]);
+          }
+        } catch (err: any) {
+          console.error('Error fetching addresses:', err);
+          addToast(err.message || 'Failed to load addresses', 'error');
+        } finally {
+          setAddressesLoading(false);
+        }
+      }
+    };
+
+    fetchAddresses();
+  }, [isAuthenticated, addToast]);
+
+  const handleSelectAddress = (address: Address) => {
+    setSelectedAddress(address);
+  };
+
+  const handleAddNewAddress = async (address: Address) => {
+    try {
+      setAddressesLoading(true);
+      const newAddress = await addressService.createAddress(address);
+      setAddresses((prev) => [...prev, newAddress]);
+      setSelectedAddress(newAddress);
+      addToast('Address added successfully', 'success');
+    } catch (err: any) {
+      console.error('Error adding address:', err);
+      addToast(err.message || 'Failed to add address', 'error');
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
 
   // Redirect to login if not authenticated
   if (!isAuthenticated && !loading) {
@@ -67,9 +126,15 @@ export default function CheckoutPage() {
   const totalCents = cart?.summary.totalCents || 0;
 
   const handlePay = () => {
+    if (!selectedAddress) {
+      addToast('Please select a delivery address', 'error');
+      setShowAddressModal(true);
+      return;
+    }
+
     alert("Payment successful! Thank you for your purchase.");
     // Note: In a real implementation, this would create an order via API
-    // and the cart would be cleared by the backend
+    // with the selectedAddress.id and the cart would be cleared by the backend
   };
 
   return (
@@ -94,16 +159,40 @@ export default function CheckoutPage() {
                 <h1 className="text-2xl font-semibold text-[var(--color-text-dark)]">
                   Checkout
                 </h1>
-                <button className="text-sm font-semibold text-[var(--color-primary)]">
+                <button
+                  onClick={() => setShowAddressModal(true)}
+                  className="text-sm font-semibold text-[var(--color-primary)] hover:underline"
+                >
                   Change Address
                 </button>
               </div>
-              <div className="mt-4 text-sm text-zinc-600">
-                <p className="font-semibold text-[var(--color-text-dark)]">
-                  Jessica Laura | +12 345 678 910 | Home
-                </p>
-                <p>South Merdeka Street, Kedudalem, Klojen District, Malang City, East Java 65119</p>
-              </div>
+              {addressesLoading ? (
+                <div className="mt-4 text-sm text-zinc-500">Loading address...</div>
+              ) : selectedAddress ? (
+                <div className="mt-4 text-sm text-zinc-600">
+                  <p className="font-semibold text-[var(--color-text-dark)]">
+                    {selectedAddress.name} | {selectedAddress.phone} | {selectedAddress.addressType}
+                  </p>
+                  <p className="mt-1">{selectedAddress.line1}</p>
+                  {selectedAddress.line2 && <p>{selectedAddress.line2}</p>}
+                  {selectedAddress.landmark && (
+                    <p className="text-zinc-500">Landmark: {selectedAddress.landmark}</p>
+                  )}
+                  <p>
+                    {selectedAddress.city}, {selectedAddress.state} {selectedAddress.pincode}
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4 text-sm text-zinc-600">
+                  <p className="text-amber-600">No delivery address selected.</p>
+                  <button
+                    onClick={() => setShowAddressModal(true)}
+                    className="mt-2 text-[var(--color-primary)] underline hover:no-underline"
+                  >
+                    Add a delivery address
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="rounded-3xl border border-[var(--color-border-primary)] bg-white p-6">
@@ -197,6 +286,17 @@ export default function CheckoutPage() {
           </aside>
         </div>
       </section>
+
+      {/* Address Selection Modal */}
+      <AddressSelectionModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        addresses={addresses}
+        selectedAddressId={selectedAddress?.id || null}
+        onSelectAddress={handleSelectAddress}
+        onAddNewAddress={handleAddNewAddress}
+      />
+
       <Footer />
     </main>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { productService, ProductFilters, ProductListItem } from '@/lib/products';
 
 interface UseProductsResult {
@@ -25,12 +25,25 @@ export function useProducts(filters: ProductFilters = {}): UseProductsResult {
     totalPages: 0,
   });
 
-  const fetchProducts = async () => {
+  // Memoize filters to prevent unnecessary re-renders
+  const memoizedFilters = useMemo(() => filters, [
+    filters.page,
+    filters.limit,
+    filters.category,
+    filters.brand,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.search,
+    filters.sortBy,
+    filters.sortOrder,
+  ]);
+
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await productService.browseProducts(filters);
+      const response = await productService.browseProducts(memoizedFilters);
 
       setProducts(response.products);
       setPagination({
@@ -45,12 +58,11 @@ export function useProducts(filters: ProductFilters = {}): UseProductsResult {
     } finally {
       setLoading(false);
     }
-  };
+  }, [memoizedFilters]);
 
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(filters)]);
+  }, [fetchProducts]);
 
   return {
     products,

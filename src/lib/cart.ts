@@ -108,63 +108,63 @@ class CartService {
    * Get the current active cart for authenticated user
    */
   async getCart(): Promise<Cart> {
-    return apiClient.get<Cart>('/api/customer/cart');
+    return apiClient.get<Cart>('/customer/cart');
   }
 
   /**
    * Add an item to the cart
    */
   async addItem(data: AddItemRequest): Promise<Cart> {
-    return apiClient.post<Cart>('/api/customer/cart/items', data);
+    return apiClient.post<Cart>('/customer/cart/items', data);
   }
 
   /**
    * Update cart item quantity
    */
   async updateItemQuantity(itemUid: string, quantity: number): Promise<Cart> {
-    return apiClient.patch<Cart>(`/api/customer/cart/items/${itemUid}`, { quantity });
+    return apiClient.patch<Cart>(`/customer/cart/items/${itemUid}`, { quantity });
   }
 
   /**
    * Remove an item from the cart
    */
   async removeItem(itemUid: string): Promise<Cart> {
-    return apiClient.delete<Cart>(`/api/customer/cart/items/${itemUid}`);
+    return apiClient.delete<Cart>(`/customer/cart/items/${itemUid}`);
   }
 
   /**
    * Merge guest cart items into authenticated cart
    */
   async mergeGuestCart(items: MergeCartRequest['items']): Promise<Cart> {
-    return apiClient.post<Cart>('/api/customer/cart/merge', { items });
+    return apiClient.post<Cart>('/customer/cart/merge', { items });
   }
 
   /**
    * Validate cart before checkout
    */
   async validateCart(): Promise<ValidateCartResponse> {
-    return apiClient.post<ValidateCartResponse>('/api/customer/cart/validate', {});
+    return apiClient.post<ValidateCartResponse>('/customer/cart/validate', {});
   }
 
   /**
    * Apply a coupon code to the cart
    */
   async applyCoupon(code: string): Promise<ApplyCouponResponse> {
-    return apiClient.post<ApplyCouponResponse>('/api/customer/cart/apply-coupon', { code });
+    return apiClient.post<ApplyCouponResponse>('/customer/cart/apply-coupon', { code });
   }
 
   /**
    * Remove applied coupon from cart
    */
   async removeCoupon(): Promise<Cart> {
-    return apiClient.delete<Cart>('/api/customer/cart/coupon');
+    return apiClient.delete<Cart>('/customer/cart/coupon');
   }
 
   /**
    * Get shipping estimate for a destination
    */
   async getShippingEstimate(destination: ShippingEstimateRequest['destination']): Promise<ShippingEstimateResponse> {
-    return apiClient.post<ShippingEstimateResponse>('/api/customer/cart/shipping-estimate', { destination });
+    return apiClient.post<ShippingEstimateResponse>('/customer/cart/shipping-estimate', { destination });
   }
 }
 

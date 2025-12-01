@@ -119,8 +119,8 @@ class GuestCartService {
     if (items.length === 0) return null;
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://dh-ecom-backend.vercel.app';
-      const response = await fetch(`${API_URL}/api/public/cart/price-preview`, {
+      const API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'https://dh-ecom-backend.vercel.app'}/api`;
+      const response = await fetch(`${API_URL}/public/cart/price-preview`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

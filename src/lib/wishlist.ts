@@ -51,7 +51,7 @@ class WishlistService {
    * @returns Promise<WishlistItem[]>
    */
   async getWishlist(): Promise<WishlistItem[]> {
-    return apiClient.get<WishlistItem[]>('/api/customer/wishlist');
+    return apiClient.get<WishlistItem[]>('/customer/wishlist');
   }
 
   /**
@@ -60,7 +60,7 @@ class WishlistService {
    * @returns Promise<WishlistItem>
    */
   async addToWishlist(skuUid: string): Promise<WishlistItem> {
-    return apiClient.post<WishlistItem>('/api/customer/wishlist', { skuUid });
+    return apiClient.post<WishlistItem>('/customer/wishlist', { skuUid });
   }
 
   /**
@@ -69,7 +69,7 @@ class WishlistService {
    * @returns Promise<{message: string}>
    */
   async removeFromWishlist(wishlistItemUid: string): Promise<{ message: string }> {
-    return apiClient.delete<{ message: string }>(`/api/customer/wishlist/${wishlistItemUid}`);
+    return apiClient.delete<{ message: string }>(`/customer/wishlist/${wishlistItemUid}`);
   }
 
   /**
@@ -83,7 +83,7 @@ class WishlistService {
     quantity: number = 1
   ): Promise<MoveToCartResponse> {
     return apiClient.post<MoveToCartResponse>(
-      `/api/customer/wishlist/${wishlistItemUid}/move-to-cart`,
+      `/customer/wishlist/${wishlistItemUid}/move-to-cart`,
       { quantity }
     );
   }

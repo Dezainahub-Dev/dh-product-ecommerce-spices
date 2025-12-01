@@ -94,60 +94,81 @@ export default function Page({ params }: PageProps) {
           <span className="font-medium text-zinc-700">{product.title}</span>
         </nav>
 
-        <div className="mt-6 grid gap-10 rounded-3xl border border-[--color-border-primary] bg-background p-6 lg:grid-cols-[420px_1fr]">
+        <div className="mt-6 grid gap-8 lg:grid-cols-[480px_1fr]">
           <ProductGallery images={product.images} />
 
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[--color-primary]">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--color-primary)]">
                 {product.category.name}
               </p>
-              <h1 className="text-3xl font-semibold text-[--color-primary-dark]">{product.title}</h1>
-              <div className="flex items-center gap-3 text-sm text-zinc-500">
-                <span className="inline-flex items-center gap-1 text-base font-semibold text-[--color-accent-yellow]">
-                  ★ {product.averageRating?.toFixed(1) || 'N/A'}
+              <h1 className="text-4xl font-bold text-[var(--color-primary-dark)]">{product.title}</h1>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <span
+                      key={i}
+                      className={`text-lg ${
+                        i < Math.floor(product.averageRating || 0)
+                          ? 'text-[var(--color-accent-yellow)]'
+                          : 'text-zinc-300'
+                      }`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <span className="text-zinc-600">
+                  {product.averageRating?.toFixed(1) || '0.0'} ({product.reviewCount.toLocaleString()} Reviews)
                 </span>
-                <span>({product.reviewCount.toLocaleString()} Reviews)</span>
-                <button className="font-semibold text-[--color-primary] hover:underline">
-                  See All Reviews
-                </button>
               </div>
-              {product.description && (
-                <p className="text-base text-zinc-600">
-                  {product.description.length > 220
-                    ? `${product.description.slice(0, 220)}...`
-                    : product.description}
-                </p>
-              )}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-2xl border border-[--color-border-primary] bg-[--color-bg-primary] p-4 text-lg font-semibold text-[--color-primary] sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                {formatPrice(product.minPriceCents)}
+            <div className="flex items-center gap-4 border-y border-zinc-200 py-4">
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-bold text-[var(--color-primary)]">
+                  {formatPrice(product.minPriceCents)}
+                </span>
                 {product.maxPriceCents && product.maxPriceCents > product.minPriceCents && (
-                  <span className="ml-3 text-base font-normal text-zinc-400 line-through">
-                    {formatPrice(product.maxPriceCents)}
-                  </span>
+                  <>
+                    <span className="text-xl font-medium text-zinc-400 line-through">
+                      {formatPrice(product.maxPriceCents)}
+                    </span>
+                    <span className="rounded-full bg-[var(--color-accent-orange-bg)] px-3 py-1 text-sm font-semibold text-[var(--color-accent-orange)]">
+                      {Math.round(((product.maxPriceCents - product.minPriceCents) / product.maxPriceCents) * 100)}% OFF
+                    </span>
+                  </>
                 )}
               </div>
-              {product.maxPriceCents && product.maxPriceCents > product.minPriceCents && (
-                <span className="rounded-full bg-[--color-accent-orange-bg] px-4 py-1 text-sm font-semibold text-[--color-accent-orange]">
-                  {Math.round(((product.maxPriceCents - product.minPriceCents) / product.maxPriceCents) * 100)}% OFF
-                </span>
-              )}
             </div>
 
-            <div className="flex flex-col gap-4 rounded-2xl border border-[--color-border-primary] p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-zinc-500">{totalStock} Stock Available</p>
-                <div className="mt-2 h-2 w-48 rounded-full bg-[--color-progress-bg]">
-                  <div
-                    className="h-full rounded-full bg-[--color-primary]"
-                    style={{ width: `${Math.min(100, totalStock > 0 ? 60 : 0)}%` }}
-                  />
-                </div>
+            {product.description && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-primary-lighter)]">
+                  Product Description
+                </h3>
+                <p className="text-base leading-relaxed text-zinc-600">
+                  {product.description}
+                </p>
               </div>
-              <p className="text-sm text-zinc-500">SKUs: {product.totalSkus}</p>
+            )}
+
+            <div className="flex items-center gap-6 rounded-xl bg-zinc-50 p-4">
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span className="text-sm font-medium text-zinc-700">
+                  {totalStock > 0 ? `${totalStock} in stock` : 'Out of stock'}
+                </span>
+              </div>
+              <div className="h-6 w-px bg-zinc-300" />
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="text-sm font-medium text-zinc-700">{product.totalSkus} variant(s)</span>
+              </div>
             </div>
 
             <AddToCartPanel slug={product.slug} product={product} />
@@ -170,33 +191,39 @@ function ProductGallery({ images }: { images: { uid: string; url: string; altTex
 
   if (displayImages.length === 0) {
     return (
-      <div className="flex h-[360px] w-full items-center justify-center rounded-3xl border border-[--color-border-primary] bg-[--color-bg-image]">
+      <div className="flex h-[500px] w-full items-center justify-center rounded-3xl border border-zinc-200 bg-zinc-50">
         <PlaceholderThumb large />
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-[80px_1fr]">
-      <div className="flex sm:flex-col gap-3 sm:gap-4">
-        {displayImages.slice(0, 4).map((image, index) => (
-          <button
-            key={image.uid}
-            onClick={() => setSelectedImage(index)}
-            className={`flex h-16 w-16 items-center justify-center rounded-2xl border border-[--color-border-primary] bg-[--color-bg-image] overflow-hidden ${
-              index === selectedImage ? "ring-2 ring-[--color-primary]" : ""
-            }`}
-          >
-            <img src={image.url} alt={image.altText || 'Product'} className="h-full w-full object-cover" />
-          </button>
-        ))}
-      </div>
-      <div className="flex h-[360px] w-full items-center justify-center rounded-3xl border border-[--color-border-primary] bg-[--color-bg-image] overflow-hidden">
+    <div className="space-y-4">
+      <div className="flex h-[500px] w-full items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-8">
         <img
           src={displayImages[selectedImage]?.url}
           alt={displayImages[selectedImage]?.altText || 'Product'}
           className="h-full w-full object-contain"
         />
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {displayImages.slice(0, 4).map((image, index) => (
+          <button
+            key={image.uid}
+            onClick={() => setSelectedImage(index)}
+            className={`flex h-24 w-full items-center justify-center overflow-hidden rounded-2xl border-2 bg-white p-2 transition ${
+              index === selectedImage
+                ? 'border-[var(--color-primary)]'
+                : 'border-zinc-200 hover:border-zinc-300'
+            }`}
+          >
+            <img
+              src={image.url}
+              alt={image.altText || 'Product'}
+              className="h-full w-full object-contain"
+            />
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -228,42 +255,50 @@ function RelateProducts({ related }: { related: ProductListItem[] }) {
   }
 
   return (
-    <section className="mt-16 rounded-3xl border border-[--color-border-primary] bg-background px-6 py-10">
-      <h2 className="text-center text-3xl font-semibold text-[--color-primary-dark]">Related Products</h2>
-      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <section className="mt-16">
+      <h2 className="text-center text-3xl font-bold text-[var(--color-primary-dark)]">Related Products</h2>
+      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {related.map((item) => (
           <Link
             key={item.uid}
             href={`/shop-now/${item.slug}`}
-            className="flex flex-col rounded-3xl border border-[--color-border-secondary] bg-[--color-bg-card] p-4 shadow-[0_10px_32px_rgba(77,156,44,0.06)] hover:-translate-y-1 transition"
+            className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:shadow-lg"
           >
-            <div className="relative flex h-40 items-center justify-center rounded-2xl bg-[--color-bg-image] overflow-hidden">
+            <div className="relative flex h-48 items-center justify-center overflow-hidden bg-zinc-50 p-4">
               {item.imageUrl ? (
-                <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="h-full w-full object-contain transition group-hover:scale-105"
+                />
               ) : (
                 <PlaceholderThumb />
               )}
             </div>
-            <div className="mt-4 space-y-2 text-left">
-              <h3 className="text-base font-semibold text-zinc-800 line-clamp-2">{item.title}</h3>
-              <p className="text-lg font-semibold text-[--color-primary]">
-                {formatPrice(item.minPriceCents)}
+            <div className="flex flex-col gap-2 p-4">
+              <h3 className="line-clamp-2 text-base font-semibold text-zinc-800 group-hover:text-[var(--color-primary)]">
+                {item.title}
+              </h3>
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-bold text-[var(--color-primary)]">
+                  {formatPrice(item.minPriceCents)}
+                </span>
                 {item.maxPriceCents && item.maxPriceCents > item.minPriceCents && (
-                  <span className="ml-3 text-base font-normal text-zinc-400 line-through">
+                  <span className="text-sm text-zinc-400 line-through">
                     {formatPrice(item.maxPriceCents)}
                   </span>
                 )}
-              </p>
+              </div>
             </div>
           </Link>
         ))}
       </div>
-      <div className="mt-8 flex justify-center">
+      <div className="mt-10 flex justify-center">
         <Link
           href="/shop-now"
-          className="rounded-full border border-[--color-primary] px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-[--color-primary] hover:bg-[--color-primary] hover:text-white transition"
+          className="rounded-full border-2 border-[var(--color-primary)] px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)] transition hover:bg-[var(--color-primary)] hover:text-white"
         >
-          See All Products
+          View All Products
         </Link>
       </div>
     </section>

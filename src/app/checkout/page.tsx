@@ -11,6 +11,8 @@ import { addressService } from "@/lib/address";
 import type { Address } from "@/components/profile/address-form-modal";
 import { AddressSelectionModal } from "@/components/checkout/address-selection-modal";
 import { useToastStore } from "@/components/toast-notification";
+import { orderService } from "@/lib/orders";
+import { cartService } from "@/lib/cart";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -23,6 +25,9 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [addressesLoading, setAddressesLoading] = useState(false);
+
+  // Payment state
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Fetch addresses on mount
   useEffect(() => {
@@ -125,16 +130,70 @@ export default function CheckoutPage() {
   const shippingCents = cart?.summary.shippingCents || 0;
   const totalCents = cart?.summary.totalCents || 0;
 
-  const handlePay = () => {
+  const handlePay = async () => {
     if (!selectedAddress) {
       addToast('Please select a delivery address', 'error');
       setShowAddressModal(true);
       return;
     }
 
-    alert("Payment successful! Thank you for your purchase.");
-    // Note: In a real implementation, this would create an order via API
-    // with the selectedAddress.id and the cart would be cleared by the backend
+    if (!cart || cart.items.length === 0) {
+      addToast('Your cart is empty', 'error');
+      return;
+    }
+
+    try {
+      setIsProcessingPayment(true);
+
+      // Step 1: Validate cart before checkout
+      const validation = await cartService.validateCart();
+
+      if (!validation.canProceed) {
+        // Show adjustments to user
+        if (validation.adjustments && validation.adjustments.length > 0) {
+          validation.adjustments.forEach((adj: any) => {
+            addToast(`${adj.reason}`, 'warning');
+          });
+        }
+        addToast('Please review your cart and try again', 'error');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      // Step 2: Create order with selected address
+      try {
+        await orderService.createOrder({
+          shippingAddressUid: selectedAddress.id,
+          paymentMethod: 'COD', // Cash on Delivery - you can make this dynamic
+        });
+
+        // Show success message
+        addToast('Order placed successfully!', 'success');
+
+        // Redirect to orders page after a brief delay
+        setTimeout(() => {
+          router.push('/profile?tab=orders');
+        }, 1500);
+      } catch (orderError: any) {
+        // Handle 404 - backend endpoint not implemented yet
+        if (orderError.message?.includes('404') || orderError.statusCode === 404) {
+          console.warn('Order creation endpoint not available on backend yet (404)');
+          addToast(
+            'Order placement feature is currently under development. Your cart has been validated and is ready for checkout.',
+            'info'
+          );
+          // TODO: Remove this when backend implements POST /customer/orders endpoint
+          // For now, just show a message that the feature is coming soon
+        } else {
+          throw orderError; // Re-throw other errors
+        }
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      addToast(error.message || 'Failed to process checkout. Please try again.', 'error');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   return (
@@ -278,9 +337,10 @@ export default function CheckoutPage() {
               </div>
               <button
                 onClick={handlePay}
-                className="mt-5 w-full rounded-xl bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-[0_15px_35px_rgba(103,39,27,0.35)] transition hover:bg-[var(--color-primary-darker)]"
+                disabled={isProcessingPayment || !selectedAddress || !cart || cart.items.length === 0}
+                className="mt-5 w-full rounded-xl bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-[0_15px_35px_rgba(103,39,27,0.35)] transition hover:bg-[var(--color-primary-darker)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[var(--color-primary)]"
               >
-                Pay Now ({formatCartPrice(totalCents)})
+                {isProcessingPayment ? 'Processing...' : `Pay Now (${formatCartPrice(totalCents)})`}
               </button>
             </div>
           </aside>

@@ -19,56 +19,21 @@ import { AddressFormModal, Address } from "@/components/profile/address-form-mod
 import { DeleteConfirmationModal } from "@/components/profile/delete-confirmation-modal";
 import { addressService } from "@/lib/address";
 import { useToastStore } from "@/components/toast-notification";
+import { orderService, type OrderListItem, type Review, type ReturnRequest, formatOrderPrice, formatOrderStatus, getOrderStatusColor } from "@/lib/orders";
+import { OrderDetailsModal } from "@/components/orders/order-details-modal";
+import { productService } from "@/lib/products";
 
 const profileMenu = [
   { label: "Profile Details", value: "profile" },
   { label: "Orders", value: "orders" },
+  { label: "Returns", value: "returns" },
+  { label: "Reviews", value: "reviews" },
+  { label: "Recently Viewed", value: "recently-viewed" },
   { label: "Address", value: "address" },
   { label: "Wishlist", value: "wishlist" },
 ] as const;
 
 type ProfileSection = (typeof profileMenu)[number]["value"];
-
-const orders = [
-  {
-    id: "INV-20921",
-    date: "January 02, 2025",
-    total: "₹3,499",
-    status: "Shipped",
-    summary: "Cardamom, Nutmeg & Cashew Pack",
-    items: [
-      { name: "Premium Cardamom", quantity: 2, price: "₹899" },
-      { name: "Organic Nutmeg", quantity: 1, price: "₹699" },
-      { name: "Roasted Cashews", quantity: 3, price: "₹1,001" },
-    ],
-    shippingAddress: {
-      name: "Jessica Laura",
-      phone: "+12 345 678 910",
-      address: "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
-    },
-    paymentMethod: "Credit Card ending in 4242",
-    trackingNumber: "TRK-2025-001234",
-  },
-  {
-    id: "INV-20487",
-    date: "December 22, 2024",
-    total: "₹2,199",
-    status: "Delivered",
-    summary: "Premium Spice Bundle",
-    items: [
-      { name: "Cumin Seeds", quantity: 2, price: "₹599" },
-      { name: "Black Pepper", quantity: 1, price: "₹799" },
-      { name: "Turmeric Powder", quantity: 2, price: "₹801" },
-    ],
-    shippingAddress: {
-      name: "Jessica Laura",
-      phone: "+12 345 678 910",
-      address: "South Merdeka Street, Kiuddalem, Klojen District, Malang City, East Java 65119",
-    },
-    paymentMethod: "Credit Card ending in 4242",
-    trackingNumber: "TRK-2024-009876",
-  },
-];
 
 export function ProfileAddressPage() {
   const router = useRouter();
@@ -84,7 +49,6 @@ export function ProfileAddressPage() {
     marketingOptIn: false,
   });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<typeof orders[0] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updateError, setUpdateError] = useState('');
@@ -100,6 +64,26 @@ export function ProfileAddressPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingAddress, setDeletingAddress] = useState<Address | null>(null);
   const { addToast } = useToastStore();
+
+  // Orders management state
+  const [orders_data, setOrdersData] = useState<OrderListItem[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [ordersTotalPages, setOrdersTotalPages] = useState(1);
+  const [ordersTotal, setOrdersTotal] = useState(0);
+  const [ordersStatusFilter, setOrdersStatusFilter] = useState<OrderListItem['status'] | 'all'>('all');
+  const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
+  const [selectedOrderUid, setSelectedOrderUid] = useState<string | null>(null);
+
+  // Returns and Reviews state
+  const [returns, setReturns] = useState<ReturnRequest[]>([]);
+  const [returnsLoading, setReturnsLoading] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Recently Viewed state
+  const [recentlyViewed, setRecentlyViewed] = useState<Array<{productUid: string; productTitle: string; productSlug?: string; viewedAt: string}>>([]);
+  const [recentlyViewedLoading, setRecentlyViewedLoading] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -157,6 +141,110 @@ export function ProfileAddressPage() {
     };
 
     fetchAddresses();
+  }, [activeTab, addToast]);
+
+  // Fetch orders when orders tab is active
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (activeTab === 'orders' && authService.isAuthenticated()) {
+        try {
+          setOrdersLoading(true);
+          const response = await orderService.getOrders({
+            page: ordersPage,
+            limit: 10,
+            status: ordersStatusFilter === 'all' ? undefined : ordersStatusFilter,
+          });
+          setOrdersData(response.orders);
+          setOrdersTotalPages(response.totalPages);
+          setOrdersTotal(response.total);
+        } catch (err: any) {
+          console.error('Error fetching orders:', err);
+          addToast(err.message || 'Failed to load orders', 'error');
+        } finally {
+          setOrdersLoading(false);
+        }
+      }
+    };
+
+    fetchOrders();
+  }, [activeTab, ordersPage, ordersStatusFilter, addToast]);
+
+  // Fetch returns when returns tab is active
+  useEffect(() => {
+    const fetchReturns = async () => {
+      if (activeTab === 'returns' && authService.isAuthenticated()) {
+        try {
+          setReturnsLoading(true);
+          const response = await orderService.getReturnRequests();
+          setReturns(response.returnRequests);
+        } catch (err: any) {
+          console.error('Error fetching returns:', err);
+          addToast(err.message || 'Failed to load returns', 'error');
+        } finally {
+          setReturnsLoading(false);
+        }
+      }
+    };
+
+    fetchReturns();
+  }, [activeTab, addToast]);
+
+  // Fetch reviews when reviews tab is active
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (activeTab === 'reviews' && authService.isAuthenticated()) {
+        try {
+          setReviewsLoading(true);
+          const data = await orderService.getMyReviews();
+          setReviews(data);
+        } catch (err: any) {
+          console.error('Error fetching reviews:', err);
+          addToast(err.message || 'Failed to load reviews', 'error');
+        } finally {
+          setReviewsLoading(false);
+        }
+      }
+    };
+
+    fetchReviews();
+  }, [activeTab, addToast]);
+
+  // Fetch recently viewed when recently-viewed tab is active
+  useEffect(() => {
+    const fetchRecentlyViewed = async () => {
+      if (activeTab === 'recently-viewed' && authService.isAuthenticated()) {
+        try {
+          setRecentlyViewedLoading(true);
+          const data = await orderService.getRecentlyViewed(20);
+
+          // Enrich with product details to get slug
+          const enrichedData = await Promise.all(
+            data.map(async (item) => {
+              try {
+                const productDetail = await productService.getProductDetail(item.productUid);
+                return {
+                  ...item,
+                  productSlug: productDetail.slug,
+                };
+              } catch (error) {
+                // If we can't fetch the product details, return the item without slug
+                console.error(`Failed to fetch product details for ${item.productUid}:`, error);
+                return item;
+              }
+            })
+          );
+
+          setRecentlyViewed(enrichedData);
+        } catch (err: any) {
+          console.error('Error fetching recently viewed:', err);
+          addToast(err.message || 'Failed to load recently viewed products', 'error');
+        } finally {
+          setRecentlyViewedLoading(false);
+        }
+      }
+    };
+
+    fetchRecentlyViewed();
   }, [activeTab, addToast]);
 
   const startEditingProfile = () => {
@@ -285,12 +373,39 @@ export function ProfileAddressPage() {
     }
   };
 
-  const handleViewOrderDetails = (order: typeof orders[0]) => {
-    setSelectedOrder(order);
+  const handleViewOrderDetails = (orderUid: string) => {
+    setSelectedOrderUid(orderUid);
+    setShowOrderDetailsModal(true);
   };
 
   const handleCloseOrderDetails = () => {
-    setSelectedOrder(null);
+    setShowOrderDetailsModal(false);
+    setSelectedOrderUid(null);
+  };
+
+  const handleOrderCancelled = () => {
+    // Refresh orders list after cancellation
+    if (activeTab === 'orders') {
+      const fetchOrders = async () => {
+        try {
+          setOrdersLoading(true);
+          const response = await orderService.getOrders({
+            page: ordersPage,
+            limit: 10,
+            status: ordersStatusFilter === 'all' ? undefined : ordersStatusFilter,
+          });
+          setOrdersData(response.orders);
+          setOrdersTotalPages(response.totalPages);
+          setOrdersTotal(response.total);
+        } catch (err: any) {
+          console.error('Error fetching orders:', err);
+          addToast(err.message || 'Failed to load orders', 'error');
+        } finally {
+          setOrdersLoading(false);
+        }
+      };
+      fetchOrders();
+    }
   };
 
   // Address handlers
@@ -420,6 +535,43 @@ export function ProfileAddressPage() {
                 <p>{updateError}</p>
               </div>
             )}
+
+            {/* Profile Analytics */}
+            {profile && (profile.ordersCount !== undefined || profile.addressesCount !== undefined) && (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                {profile.ordersCount !== undefined && (
+                  <div className="rounded-2xl border border-border-primary bg-bg-card p-4 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">Orders</p>
+                    <p className="mt-2 text-2xl font-bold text-primary">{profile.ordersCount}</p>
+                  </div>
+                )}
+                {profile.addressesCount !== undefined && (
+                  <div className="rounded-2xl border border-border-primary bg-bg-card p-4 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">Addresses</p>
+                    <p className="mt-2 text-2xl font-bold text-primary">{profile.addressesCount}</p>
+                  </div>
+                )}
+                {profile.isVerified !== undefined && (
+                  <div className="rounded-2xl border border-border-primary bg-bg-card p-4 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">Verified</p>
+                    <p className="mt-2 text-2xl font-bold text-primary">{profile.isVerified ? 'Yes' : 'No'}</p>
+                  </div>
+                )}
+                {profile.lastLoginAt && (
+                  <div className="rounded-2xl border border-border-primary bg-bg-card p-4 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary-lighter">Last Login</p>
+                    <p className="mt-2 text-xs font-semibold text-primary-dark">
+                      {new Date(profile.lastLoginAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <form
               onSubmit={handleProfileSubmit}
               className="space-y-5"
@@ -566,33 +718,304 @@ export function ProfileAddressPage() {
           </div>
         );
       case "orders":
+        if (ordersLoading) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-zinc-500">Loading orders...</p>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-6">
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm font-medium text-zinc-600">Filter by status:</p>
+              {(['all', 'pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'] as const).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => {
+                    setOrdersStatusFilter(status);
+                    setOrdersPage(1);
+                  }}
+                  className={`rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                    ordersStatusFilter === status
+                      ? 'bg-primary text-white'
+                      : 'bg-bg-secondary text-zinc-600 hover:bg-border-light'
+                  }`}
+                >
+                  {status === 'all' ? 'All' : formatOrderStatus(status)}
+                </button>
+              ))}
+            </div>
+
+            {/* Orders List */}
+            {orders_data.length === 0 ? (
+              <div className="rounded-2xl border border-border-primary bg-bg-card p-12 text-center">
+                <p className="text-sm text-zinc-500">No orders found.</p>
+                <Link href="/shop-now" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+                  Start Shopping
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  {orders_data.map((order) => (
+                    <article
+                      key={order.uid}
+                      className="flex flex-col gap-4 rounded-2xl border border-border-primary bg-bg-card p-4 text-sm md:flex-row md:items-center md:justify-between"
+                    >
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <p className="text-base font-semibold text-primary-dark">
+                            Order #{order.uid.slice(-8)}
+                          </p>
+                          <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${getOrderStatusColor(order.status)}`}>
+                            {formatOrderStatus(order.status)}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-zinc-500">
+                          {new Date(order.placedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </p>
+                        <p className="mt-1 text-zinc-500">{order.itemsCount} item(s)</p>
+                        <p className="mt-2 text-lg font-bold text-primary">
+                          {formatOrderPrice(order.totalCents, order.currency)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleViewOrderDetails(order.uid)}
+                        className="rounded-full border border-border-light px-6 py-2 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary"
+                      >
+                        View Details
+                      </button>
+                    </article>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {ordersTotalPages > 1 && (
+                  <div className="flex items-center justify-between rounded-2xl border border-border-primary bg-bg-card p-4">
+                    <p className="text-sm text-zinc-600">
+                      Showing page {ordersPage} of {ordersTotalPages} ({ordersTotal} total)
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setOrdersPage((p) => Math.max(1, p - 1))}
+                        disabled={ordersPage === 1}
+                        className="rounded-full border border-border-light px-4 py-2 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setOrdersPage((p) => Math.min(ordersTotalPages, p + 1))}
+                        disabled={ordersPage === ordersTotalPages}
+                        className="rounded-full border border-border-light px-4 py-2 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      case "returns":
+        if (returnsLoading) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-zinc-500">Loading return requests...</p>
+              </div>
+            </div>
+          );
+        }
+
+        if (returns.length === 0) {
+          return (
+            <div className="rounded-2xl border border-border-primary bg-bg-card p-12 text-center">
+              <p className="text-sm text-zinc-500">No return requests found.</p>
+            </div>
+          );
+        }
+
         return (
           <div className="space-y-4">
-            {orders.map((order) => (
+            {returns.map((returnRequest) => (
               <article
-                key={order.id}
-                className="flex flex-col rounded-2xl border border-border-primary bg-bg-card p-4 text-sm text-primary-dark md:flex-row md:items-center md:justify-between"
+                key={returnRequest.uid}
+                className="rounded-2xl border border-border-primary bg-bg-card p-4"
               >
-                <div>
-                  <p className="text-base font-semibold">{order.summary}</p>
-                  <p className="mt-1 text-zinc-500">
-                    {order.date} • Order {order.id}
-                  </p>
-                  <p className="mt-2 font-semibold text-primary">{order.total}</p>
-                </div>
-                <div className="mt-4 flex items-center gap-3 md:mt-0">
-                  <span className="rounded-full bg-bg-secondary px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
-                    {order.status}
-                  </span>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-base font-semibold text-primary-dark">
+                        Return Request #{returnRequest.uid.slice(-8)}
+                      </p>
+                      <span className="rounded-full bg-bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                        {returnRequest.status}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-zinc-600">
+                      <span className="font-medium">Order:</span> #{returnRequest.orderUid.slice(-8)}
+                    </p>
+                    <p className="mt-1 text-sm text-zinc-600">
+                      <span className="font-medium">Reason:</span> {returnRequest.reason}
+                    </p>
+                    <p className="mt-2 text-xs text-zinc-500">
+                      Requested on {new Date(returnRequest.requestedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </p>
+                  </div>
                   <button
-                    onClick={() => handleViewOrderDetails(order)}
-                    className="rounded-full border border-border-light px-5 py-2 text-sm font-semibold text-primary-dark hover:bg-bg-secondary transition"
+                    onClick={() => handleViewOrderDetails(returnRequest.orderUid)}
+                    className="rounded-full border border-border-light px-6 py-2 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary"
                   >
-                    View Details
+                    View Order
                   </button>
                 </div>
               </article>
             ))}
+          </div>
+        );
+      case "reviews":
+        if (reviewsLoading) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-zinc-500">Loading reviews...</p>
+              </div>
+            </div>
+          );
+        }
+
+        if (reviews.length === 0) {
+          return (
+            <div className="rounded-2xl border border-border-primary bg-bg-card p-12 text-center">
+              <p className="text-sm text-zinc-500">No reviews yet.</p>
+              <Link href="/shop-now" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+                Shop and leave your first review
+              </Link>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-4">
+            {reviews.map((review) => (
+              <article
+                key={review.uid}
+                className="rounded-2xl border border-border-primary bg-bg-card p-4"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <Link
+                      href={`/shop-now/${review.productUid}`}
+                      className="text-base font-semibold text-primary-dark hover:text-primary"
+                    >
+                      {review.productTitle}
+                    </Link>
+                    <div className="mt-2 flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`text-lg ${
+                            i < review.rating ? 'text-[var(--color-accent-yellow)]' : 'text-zinc-300'
+                          }`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                      <span className="ml-2 text-sm text-zinc-600">{review.rating}/5</span>
+                    </div>
+                    {review.comment && (
+                      <p className="mt-3 text-sm text-zinc-600">{review.comment}</p>
+                    )}
+                    <p className="mt-3 text-xs text-zinc-500">
+                      Reviewed on {new Date(review.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        );
+      case "recently-viewed":
+        if (recentlyViewedLoading) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-zinc-500">Loading recently viewed products...</p>
+              </div>
+            </div>
+          );
+        }
+
+        if (recentlyViewed.length === 0) {
+          return (
+            <div className="rounded-2xl border border-border-primary bg-bg-card p-12 text-center">
+              <p className="text-sm text-zinc-500">No recently viewed products.</p>
+              <Link href="/shop-now" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+                Start browsing products
+              </Link>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-4">
+            {recentlyViewed.map((item) => {
+              const productUrl = item.productSlug ? `/shop-now/${item.productSlug}` : `/shop-now/${item.productUid}`;
+              return (
+                <article
+                  key={item.productUid}
+                  className="rounded-2xl border border-border-primary bg-bg-card p-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <Link
+                        href={productUrl}
+                        className="text-base font-semibold text-primary-dark hover:text-primary"
+                      >
+                        {item.productTitle}
+                      </Link>
+                      <p className="mt-2 text-xs text-zinc-500">
+                        Viewed on {new Date(item.viewedAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                    <Link
+                      href={productUrl}
+                      className="rounded-full border border-border-light px-6 py-2 text-sm font-semibold text-primary-dark transition hover:bg-bg-secondary"
+                    >
+                      View Product
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         );
       case "wishlist":
@@ -754,136 +1177,12 @@ export function ProfileAddressPage() {
       />
 
       {/* Order Details Modal */}
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold text-primary-dark">
-                  Order Details
-                </h2>
-                <p className="mt-1 text-sm text-zinc-500">Order {selectedOrder.id}</p>
-              </div>
-              <button
-                onClick={handleCloseOrderDetails}
-                className="rounded-full p-2 text-zinc-500 hover:bg-bg-secondary transition"
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mt-6 space-y-6">
-              {/* Order Summary */}
-              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
-                  Order Summary
-                </h3>
-                <div className="mt-3 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Order Date:</span>
-                    <span className="font-semibold text-primary-dark">
-                      {selectedOrder.date}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Status:</span>
-                    <span className="rounded-full bg-bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                      {selectedOrder.status}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Tracking Number:</span>
-                    <span className="font-semibold text-primary">
-                      {selectedOrder.trackingNumber}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Items */}
-              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
-                  Items
-                </h3>
-                <div className="mt-3 space-y-3">
-                  {selectedOrder.items.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between border-b border-border-primary pb-3 last:border-b-0 last:pb-0"
-                    >
-                      <div>
-                        <p className="font-semibold text-primary-dark">{item.name}</p>
-                        <p className="text-sm text-zinc-500">Qty: {item.quantity}</p>
-                      </div>
-                      <p className="font-semibold text-primary">{item.price}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 flex items-center justify-between border-t border-border-primary pt-3">
-                  <span className="text-base font-semibold text-primary-dark">
-                    Total
-                  </span>
-                  <span className="text-lg font-bold text-primary">
-                    {selectedOrder.total}
-                  </span>
-                </div>
-              </div>
-
-              {/* Shipping Address */}
-              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
-                  Shipping Address
-                </h3>
-                <div className="mt-3 text-sm">
-                  <p className="font-semibold text-primary-dark">
-                    {selectedOrder.shippingAddress.name}
-                  </p>
-                  <p className="mt-1 text-zinc-500">
-                    {selectedOrder.shippingAddress.phone}
-                  </p>
-                  <p className="mt-2 text-zinc-600">
-                    {selectedOrder.shippingAddress.address}
-                  </p>
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="rounded-2xl border border-border-primary bg-bg-card p-4">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-lighter">
-                  Payment Method
-                </h3>
-                <p className="mt-3 text-sm font-semibold text-primary-dark">
-                  {selectedOrder.paymentMethod}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={handleCloseOrderDetails}
-                className="rounded-full border border-border-light px-6 py-2 text-sm font-semibold text-primary-dark hover:bg-bg-secondary transition"
-              >
-                Close
-              </button>
-              <button className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(77,156,44,0.25)] hover:bg-primary/90 transition">
-                Track Order
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <OrderDetailsModal
+        isOpen={showOrderDetailsModal}
+        onClose={handleCloseOrderDetails}
+        orderUid={selectedOrderUid}
+        onOrderCancelled={handleOrderCancelled}
+      />
 
       <section className="mx-auto max-w-[1300px] px-6 py-10">
         <nav className="text-sm text-zinc-500">
@@ -933,6 +1232,12 @@ export function ProfileAddressPage() {
                     ? "Profile Details"
                     : activeTab === "orders"
                     ? "Orders"
+                    : activeTab === "returns"
+                    ? "Return Requests"
+                    : activeTab === "reviews"
+                    ? "My Reviews"
+                    : activeTab === "recently-viewed"
+                    ? "Recently Viewed"
                     : activeTab === "wishlist"
                     ? "Wishlist"
                     : "Address"}

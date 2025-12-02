@@ -12,6 +12,10 @@ export interface User {
   avatarUrl?: string | null;
   isVerified?: boolean;
   lastLoginAt?: string | null;
+  ordersCount?: number;
+  addressesCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {
